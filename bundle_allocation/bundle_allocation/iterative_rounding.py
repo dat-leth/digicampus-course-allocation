@@ -33,6 +33,11 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
             student_coeffs[student] -= 1
     else:
         obj_coeffs = bps_alloc.vector - nearest_on_conv.vector
+        max_amount_bundles = max(collections.Counter(s for s, b in frac_alloc.indices).values())
+        student_coeffs = {s: max_amount_bundles for s in students}
+        for i, (student, bundle) in enumerate(frac_alloc.indices):
+            obj_coeffs[i] += student_coeffs[student]
+            student_coeffs[student] -= 1
 
     x = model.addVars(frac_alloc.indices,
                       lb=lower_bounds,
@@ -75,9 +80,11 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
 
         # np.array([1,2,3])[True, False, True] => [1, 3]
         if np.sum(ceiled_result_item[non_fixed_item]) <= supply_constrs[item].getAttr("RHS") + max_len_bundle - 1:
-            relaxable_supply_constrs.append(supply_constrs[item])
+            relaxable_supply_constrs.append(item)
 
-    model.remove(relaxable_supply_constrs)
+    for item in relaxable_supply_constrs:
+        model.remove(supply_constrs[item])
+        supply_constrs.pop(item)
     model.update()
     model.optimize()
     if model.getAttr("STATUS") == GRB.OPTIMAL:
@@ -115,13 +122,15 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
 
             # np.array([1,2,3])[True, False, True] => [1, 3]
             if np.sum(ceiled_result_item[non_fixed_item]) <= supply_constrs[item].getAttr("RHS") + max_len_bundle - 1:
-                relaxable_supply_constrs.append(supply_constrs[item])
+                relaxable_supply_constrs.append(item)
             else:
                 print(item,
                       np.take(result, indices_per_item[item])[non_fixed_item],
                       [frac_alloc.indices[i] for i, b in zip(indices_per_item[item], non_fixed_item) if b == True])
 
-        model.remove(relaxable_supply_constrs)
+        for item in relaxable_supply_constrs:
+            model.remove(supply_constrs[item])
+            supply_constrs.pop(item)
         model.update()
         model.optimize()
         if model.getAttr("Status") == GRB.OPTIMAL:

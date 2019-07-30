@@ -30,7 +30,10 @@ def lottery(bps_alloc: Allocation,
             convex_combination.append((new_int_alloc, None))
 
             nearest_conv, convex_combination = nearest_point_on_conv(bps_alloc, convex_combination)
+            prev_distance = distance
             distance = np.linalg.norm(bps_alloc.vector - nearest_conv.vector)
+            if prev_distance - distance < 1.0e-10:
+                break
         except InfeasibleException:
             print("BREAKING EARLY BECAUSE OF INFEASIBLE IRA")
             break

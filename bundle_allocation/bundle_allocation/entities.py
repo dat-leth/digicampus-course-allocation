@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import numpy as np
+import itertools
 
 
 @dataclass
@@ -19,6 +20,7 @@ class Course:
 class BundleItem:
     id: str
     sum_capacity: int
+    ranking_group: str
     courses: List[Course]
 
     def __hash__(self) -> int:
@@ -36,7 +38,22 @@ class BundleItem:
 @dataclass
 class Student:
     id: str
-    bundles: List[Tuple[BundleItem]]
+    rankings: Dict[str, List[BundleItem]]
+    bundles: List[Tuple[BundleItem]] = None
+
+    def generate_bundles(self, overlaps):
+        product = [bundle for bundle in itertools.product(*self.rankings.values())]
+        overlapping_bundles = []
+        for bundle in product:
+            for item in bundle:
+                remainings = list(bundle)
+                remainings.remove(item)
+                if any(remaining_item in overlaps[item] for remaining_item in remainings):
+                    overlapping_bundles.append(bundle)
+                    break
+            continue
+        non_overlapping_bundles = [b for b in product if b not in overlapping_bundles]
+        self.bundles = sorted(non_overlapping_bundles, key=lambda bundle: _sort_score(bundle, self))
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -61,3 +78,13 @@ class Allocation:
 
 class InfeasibleException(Exception):
     pass
+
+
+def _sort_score(bundle, student):
+    sum_ranks = 0
+    sum_capacity = 0
+    for item in bundle:
+        sum_ranks += student.rankings[item.ranking_group].index(item) + 1
+        sum_capacity += item.sum_capacity
+    score = sum_ranks + (1 - (1 / sum_capacity))
+    return score
