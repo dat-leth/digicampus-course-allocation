@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "bundle-allocation-microservice"
+version = "0.1.0"
+description = ""
+authors = ["Dat Le Thanh <dat.lethanh@student.uni-augsburg.de>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+connexion = {version = "^2.3", extras = ["swagger-ui"]}
+marshmallow = {version = "^2.19",allows-prereleases = true}
+bundle_allocation = {path = "../bundle_allocation/"}
+Flask-RQ2 = "^18.3"
+flask_sqlalchemy = "^2.4"
+flask_marshmallow = "^0.10.1"
+marshmallow-sqlalchemy = "^0.17.0"
+pandas = "^0.25.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

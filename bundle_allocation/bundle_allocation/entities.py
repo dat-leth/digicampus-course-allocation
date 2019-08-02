@@ -7,27 +7,27 @@ import itertools
 
 @dataclass
 class Course:
-    id: str
-    name: str
+    course_id: str
+    course_name: str
     capacity: int
     members: List = field(default_factory=list)
 
     def __repr__(self) -> str:
-        return f"{self.name}"
+        return f"{self.course_name}"
 
 
 @dataclass
 class BundleItem:
-    id: str
+    bundle_item_id: str
     sum_capacity: int
     ranking_group: str
     courses: List[Course]
 
     def __hash__(self) -> int:
-        return hash(self.id)
+        return hash(self.bundle_item_id)
 
     def __eq__(self, o: object) -> bool:
-        if isinstance(o, BundleItem) and self.id == o.id:
+        if isinstance(o, BundleItem) and self.bundle_item_id == o.bundle_item_id:
             return True
         return False
 
@@ -37,7 +37,7 @@ class BundleItem:
 
 @dataclass
 class Student:
-    id: str
+    student_id: str
     rankings: Dict[str, List[BundleItem]]
     bundles: List[Tuple[BundleItem]] = None
 
@@ -48,23 +48,27 @@ class Student:
             for item in bundle:
                 remainings = list(bundle)
                 remainings.remove(item)
-                if any(remaining_item in overlaps[item] for remaining_item in remainings):
+                if any(
+                    remaining_item in overlaps[item] for remaining_item in remainings
+                ):
                     overlapping_bundles.append(bundle)
                     break
             continue
         non_overlapping_bundles = [b for b in product if b not in overlapping_bundles]
-        self.bundles = sorted(non_overlapping_bundles, key=lambda bundle: _sort_score(bundle, self))
+        self.bundles = sorted(
+            non_overlapping_bundles, key=lambda bundle: _sort_score(bundle, self)
+        )
 
     def __hash__(self) -> int:
-        return hash(self.id)
+        return hash(self.student_id)
 
     def __eq__(self, o: object) -> bool:
-        if isinstance(o, Student) and self.id == o.id:
+        if isinstance(o, Student) and self.student_id == o.student_id:
             return True
         return False
 
     def __repr__(self) -> str:
-        return f"Student {self.id}"
+        return f"Student {self.student_id}"
 
 
 @dataclass

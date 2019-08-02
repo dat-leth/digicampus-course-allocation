@@ -25,7 +25,12 @@ def generate_frac_alloc(students: List[Student]) -> Allocation:
             for item in bundle:
                 demand_per_bundle_item[item] += 1
 
-        delta = np.min([item.sum_capacity / demand_per_bundle_item[item] for item in demand_per_bundle_item])
+        delta = np.min(
+            [
+                item.sum_capacity / demand_per_bundle_item[item]
+                for item in demand_per_bundle_item
+            ]
+        )
         t += delta
 
         for student, bundle in demanded_bundles:
@@ -35,7 +40,9 @@ def generate_frac_alloc(students: List[Student]) -> Allocation:
             item.sum_capacity -= delta * demand_per_bundle_item[item]
             if item.sum_capacity <= 0:
                 for student in students_copy:
-                    student.bundles = [bundle for bundle in student.bundles if item not in bundle]
+                    student.bundles = [
+                        bundle for bundle in student.bundles if item not in bundle
+                    ]
 
     frac_alloc = Allocation([], np.array([]))
     for (student, bundle), prob in frac_dict.items():

@@ -9,9 +9,15 @@ import numpy as np
 import random
 
 
-def iterative_rounding(frac_alloc: Allocation, students: List[Student],
-                       nearest_on_conv: Allocation = None, bps_alloc: Allocation = None) -> Allocation:
-    if np.array_equal(frac_alloc.vector, frac_alloc.vector.astype(bool)):  # all components are either 0 or 1
+def iterative_rounding(
+    frac_alloc: Allocation,
+    students: List[Student],
+    nearest_on_conv: Allocation = None,
+    bps_alloc: Allocation = None,
+) -> Allocation:
+    if np.array_equal(
+        frac_alloc.vector, frac_alloc.vector.astype(bool)
+    ):  # all components are either 0 or 1
         return frac_alloc
 
     max_len_bundle = max([len(b) for s, b in frac_alloc.indices])  # known as k in paper
@@ -26,23 +32,26 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
     if nearest_on_conv is None and bps_alloc is None:
         obj_coeffs = np.zeros(frac_alloc.vector.shape)
         # objective coefficent: most wanted bundle = max_amount_bundles, then count down (indicating preference)
-        max_amount_bundles = max(collections.Counter(s for s, b in frac_alloc.indices).values())
+        max_amount_bundles = max(
+            collections.Counter(s for s, b in frac_alloc.indices).values()
+        )
         student_coeffs = {s: max_amount_bundles for s in students}
         for i, (student, bundle) in enumerate(frac_alloc.indices):
             obj_coeffs[i] = student_coeffs[student]
             student_coeffs[student] -= 1
     else:
         obj_coeffs = bps_alloc.vector - nearest_on_conv.vector
-        max_amount_bundles = max(collections.Counter(s for s, b in frac_alloc.indices).values())
+        max_amount_bundles = max(
+            collections.Counter(s for s, b in frac_alloc.indices).values()
+        )
         student_coeffs = {s: max_amount_bundles for s in students}
         for i, (student, bundle) in enumerate(frac_alloc.indices):
             obj_coeffs[i] += student_coeffs[student]
             student_coeffs[student] -= 1
 
-    x = model.addVars(frac_alloc.indices,
-                      lb=lower_bounds,
-                      ub=upper_bounds,
-                      obj=obj_coeffs)
+    x = model.addVars(
+        frac_alloc.indices, lb=lower_bounds, ub=upper_bounds, obj=obj_coeffs
+    )
 
     x_per_item = collections.defaultdict(list)
     indices_per_item = collections.defaultdict(list)
@@ -52,11 +61,12 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
             indices_per_item[item].append(i)
 
     demand_constrs = model.addConstrs(
-        (x.sum(s, '*') <= 1.0 for s in students), "demand"
+        (x.sum(s, "*") <= 1.0 for s in students), "demand"
     )
 
     supply_constrs = model.addConstrs(
-        (quicksum(x_per_item[i]) <= i.sum_capacity for i in x_per_item), "supply"  # if quicksum > sum_capapcity
+        (quicksum(x_per_item[i]) <= i.sum_capacity for i in x_per_item),
+        "supply",  # if quicksum > sum_capapcity
     )
     model.update()
 
@@ -64,7 +74,9 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
     # Adjust RHS (remaining capacity) of bundle items
     for item in supply_constrs:
         item_vector = np.take(frac_alloc.vector, indices_per_item[item])
-        new_rhs = supply_constrs[item].getAttr("RHS") - np.sum(item_vector[item_vector == 1])
+        new_rhs = supply_constrs[item].getAttr("RHS") - np.sum(
+            item_vector[item_vector == 1]
+        )
         supply_constrs[item].setAttr("RHS", new_rhs)
     model.update()
 
@@ -79,7 +91,10 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
         ceiled_result_item = np.take(ceiled_frac_vector, indices_per_item[item])
 
         # np.array([1,2,3])[True, False, True] => [1, 3]
-        if np.sum(ceiled_result_item[non_fixed_item]) <= supply_constrs[item].getAttr("RHS") + max_len_bundle - 1:
+        if (
+            np.sum(ceiled_result_item[non_fixed_item])
+            <= supply_constrs[item].getAttr("RHS") + max_len_bundle - 1
+        ):
             relaxable_supply_constrs.append(item)
 
     for item in relaxable_supply_constrs:
@@ -104,7 +119,9 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
 
         # Update supply constraints
         # Adjust RHS (remaining capacity) of bundle items
-        fixed_per_item = collections.Counter((i for s, b in x for i in b if x[s, b].X == 1.0))
+        fixed_per_item = collections.Counter(
+            (i for s, b in x for i in b if x[s, b].X == 1.0)
+        )
         for item in supply_constrs:
             new_rhs = supply_constrs[item].getAttr("RHS") - fixed_per_item[item]
             supply_constrs[item].setAttr("RHS", new_rhs)
@@ -121,12 +138,21 @@ def iterative_rounding(frac_alloc: Allocation, students: List[Student],
             ceiled_result_item = np.take(ceiled_result, indices_per_item[item])
 
             # np.array([1,2,3])[True, False, True] => [1, 3]
-            if np.sum(ceiled_result_item[non_fixed_item]) <= supply_constrs[item].getAttr("RHS") + max_len_bundle - 1:
+            if (
+                np.sum(ceiled_result_item[non_fixed_item])
+                <= supply_constrs[item].getAttr("RHS") + max_len_bundle - 1
+            ):
                 relaxable_supply_constrs.append(item)
             else:
-                print(item,
-                      np.take(result, indices_per_item[item])[non_fixed_item],
-                      [frac_alloc.indices[i] for i, b in zip(indices_per_item[item], non_fixed_item) if b == True])
+                print(
+                    item,
+                    np.take(result, indices_per_item[item])[non_fixed_item],
+                    [
+                        frac_alloc.indices[i]
+                        for i, b in zip(indices_per_item[item], non_fixed_item)
+                        if b == True
+                    ],
+                )
 
         for item in relaxable_supply_constrs:
             model.remove(supply_constrs[item])

@@ -1,0 +1,91 @@
+openapi: "3.0.1"
+
+info:
+  title: Bundle Allocation Microservice
+  version: "1.0"
+
+paths:
+  /allocation:
+    post:
+      summary: Generate allocation
+      description: Upon receiving required information for generating allocation,
+        executing job is created and put in queue
+      operationId: api.allocation.post_allocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callbackUrl:
+                  type: string
+                  format: uri
+                  example: https://digicampus.uni-augsburg.de/plugins.php/bundleallocation/courseset/2f24cd59735a2e43fb554dfc0d823394/callback
+                studentPreferences:
+                  type: string
+                  format: uri
+                  example: https://digicampus.uni-augsburg.de/plugins.php/bundleallocation/courseset/2f24cd59735a2e43fb554dfc0d823394/preferences
+      responses:
+        202:
+          description: Accepted allocation request, returning job
+          headers:
+            Location:
+              description: URL of created job
+              schema:
+                type: string
+                format: url
+      callbacks:
+        onAllocationGenerated:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: string
+              responses:
+                200:
+                  description: Callback accepted and apply allocation
+  /allocation/{allocation_id}:
+    get:
+      summary: Get allocation
+      description: Given allocation ID, returns 200 OK with allocation data
+      operationId: api.allocation.get_allocation
+      responses:
+        200:
+          description: OK + Data
+      parameters:
+        - name: allocation_id
+          in: path
+          description: UUID of allocation
+          required: true
+          schema:
+            type: string
+            example: "12345678-1234-5678-1234-567812345678"
+  /job/{job_id}:
+    get:
+      summary: Get status of given job
+      description: Given job ID, either returns 200 OK if job not done
+        or returns 303 See Other if allocation generated
+      operationId: api.allocation.get_job
+      responses:
+        200:
+          description: OK
+        303:
+          description: See Other
+          headers:
+            Location:
+              description: URL of generated allocation
+              schema:
+                type: string
+                format: url
+      parameters:
+        - name: job_id
+          in: path
+          description: UUID of job
+          required: true
+          schema:
+            type: string
+            example: "12345678-1234-5678-1234-567812345678"
