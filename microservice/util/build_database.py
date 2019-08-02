@@ -4,7 +4,7 @@ import os
 
 
 # Delete database file if it exists currently
-if os.path.exists("people.db"):
-    os.remove("people.db")
+if os.path.exists("allocations.db"):
+    os.remove("allocations.db")
 db.create_all()
 db.session.commit()

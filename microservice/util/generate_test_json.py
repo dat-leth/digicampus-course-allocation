@@ -14,7 +14,7 @@ def import_csv(path, name_prefix):
     for i, j in enumerate(header):
         c = Course(course_id=f"{name_prefix}_T{i + 1}",
                    course_name=f"{name_prefix} {j}",
-                   capacity=int(header.iloc[0, i] + 2))
+                   capacity=int(header.iloc[0, i]))
         courses.append(c)
         parallels[j].append(c)
 

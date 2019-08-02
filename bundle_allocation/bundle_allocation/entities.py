@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict
 
 import numpy as np
 import itertools
-
+import random
 
 @dataclass
 class Course:
@@ -22,6 +22,16 @@ class BundleItem:
     sum_capacity: int
     ranking_group: str
     courses: List[Course]
+    members: Dict['Student', Course] = field(default_factory=dict)
+
+    def distribute_to_courses(self, members: List['Student']):
+        random.shuffle(members)
+        amount_per_course = [round(c.capacity / self.sum_capacity * len(members)) for c in self.courses]
+        prev_index = 0
+        for i, c in enumerate(self.courses):
+            c.members = members[prev_index:prev_index + amount_per_course[i]]
+            prev_index = prev_index + amount_per_course[i]
+            self.members.update({student: c for student in c.members})
 
     def __hash__(self) -> int:
         return hash(self.bundle_item_id)

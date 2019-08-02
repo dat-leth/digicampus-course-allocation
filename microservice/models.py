@@ -7,8 +7,10 @@ import bundle_allocation
 
 class Allocation(db.Model):
     __tablename__ = "allocation"
-    alloc_id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    alloc_id = db.Column(db.String)
     student = db.Column(db.String)
+    bundle_item = db.Column(db.String)
     course = db.Column(db.String)
     priority = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
@@ -18,7 +20,7 @@ class AllocationSchema(ma.ModelSchema):
     class Meta:
         model = Allocation
         sqla_session = db.session
-        fields = ["student", "course", "priority"]
+        fields = ["student", "bundle_item", "course", "priority"]
 
 
 class CourseSchema(Schema):

@@ -36,7 +36,7 @@ def get_job(job_id):
     job = rq.get_queue().fetch_job(job_id)
     if job is not None:
         if job.get_status() == "finished":
-            return redirect(url_for(".api_allocation_get_allocation", allocation_id=job.result["allocation_id"]),
+            return redirect(url_for(".api_allocation_get_allocation", allocation_id=job.result),
                             code=303)
         else:
             return job.get_status()
