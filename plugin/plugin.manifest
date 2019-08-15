@@ -1,0 +1,5 @@
+pluginclassname=BundleAllocationPlugin
+pluginname=BundleAllocation
+origin=dat.lethanh@student.uni-augsburg.de
+version=0.1
+studipMinVersion=4.2
