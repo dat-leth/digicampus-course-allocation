@@ -9,6 +9,8 @@
         courses: <?= json_encode($courses) ?>,
     }
 </script>
-<div id="bundle_allocation_configurator" style="width: 900px"></div>
-<img src="http://via.placeholder.com/900x1020" alt="asdf">
+<script>
+    alert($('.hidden-alert').is(':visible'))
+</script>
+<div id="bundle_allocation_configurator"></div>
 <!-- TODO: built files will be auto injected -->
