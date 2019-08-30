@@ -1,1 +1,8 @@
-<head><link href=/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views/../assets/vue/css/apply.73f40a74.css rel=preload as=style><link href=/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views/../assets/vue/js/apply.e1a89887.js rel=preload as=script><link href=/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views/../assets/vue/js/chunk-vendors.955e7b65.js rel=preload as=script><link href=/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views/../assets/vue/css/apply.73f40a74.css rel=stylesheet></head>Hallo Welt! <?= $course_id ?> <div id=mount_me></div><div data-dialog-button><button>asdf</button> <?= Studip\Button::createAccept(_('Speichern'), '', ['data-dialog' => 'size=big']) ?> <?= Studip\Button::createCancel(_('Schließen'), 'cancel') ?> </div><script src=/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views/../assets/vue/js/chunk-vendors.955e7b65.js></script><script src=/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views/../assets/vue/js/apply.e1a89887.js></script>
+Hallo Welt! <?= $course_id ?>
+<div id="mount_me"></div>
+<!-- TODO: Vue.js render timetable with ranking items and previous preferences, submit button axios POST to apply endpoint -->
+<div data-dialog-button>
+    <button>asdf</button>
+    <?= Studip\Button::createAccept(_('Speichern'), '', ['data-dialog' => 'size=big']) ?>
+    <?= Studip\Button::createCancel(_('Schließen'), 'cancel') ?>
+</div>

@@ -5,10 +5,10 @@ module.exports = {
     assetsDir: '../assets/vue',
 
     pages: {
-        apply: {
-            entry: 'src/apply/main.ts',
-            template: 'public/enrollment/apply.php',
-            filename: 'enrollment/apply.php'
+        configurerule: {
+            entry: 'src/configurerule/main.js',
+            template: 'public/configurerule/configure.php',
+            filename: 'configurerule/configure.php'
         }
     },
 }

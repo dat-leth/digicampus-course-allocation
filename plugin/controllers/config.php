@@ -70,7 +70,7 @@ class ConfigController extends PluginController
         }
     }
 
-    public function courses_cycles_action($courseset_id)
+    public function get_courses_action($courseset_id)
     {
         $courses = CourseSet::getCoursesByCourseSetId($courseset_id);
         if (empty($courses)) {
@@ -78,13 +78,18 @@ class ConfigController extends PluginController
         }
         foreach ($courses as $i => $course) {
             $courses[$i]['seminar_id'] = $course['seminar_id'];
+            $c = Course::find($course['seminar_id']);
+            $courses[$i]['name'] = $c->getFullname('number-name-semester');
+            $courses[$i]['capacity'] = (int)$c->admission_turnout;
             $cycles = SeminarCycleDate::findBySeminar($course['seminar_id']);
             foreach ($cycles as $j => $cycle) {
                 $courses[$i]['cycles'][$j]['start_time'] = $cycle->start_time;
                 $courses[$i]['cycles'][$j]['end_time'] = $cycle->end_time;
-                $courses[$i]['cycles'][$j]['weekday'] = $cycle->weekday;
+                $courses[$i]['cycles'][$j]['weekday'] = (int)$cycle->weekday;
             }
         }
+        $names = array_column($courses, 'name');
+        array_multisort($names, SORT_ASC, $courses);
         $this->set_content_type('application/json');
         $this->render_text(json_encode($courses));
     }
@@ -98,18 +103,26 @@ class ConfigController extends PluginController
             if ($decoded_request === NULL) {
                 throw new Trails_Exception(500, 'bad request, could not decode json');
             }
-            $delete_stmt = $db->prepare("DELETE FROM `bps_rankinggroup` WHERE `rule_id` = ?");
-            $delete_stmt->execute(array($rule_id));
+
+            $group_ids = array_column($decoded_request, 'group_id');
+            $in  = str_repeat('?,', count($group_ids) - 1) . '?';
+            $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_rankinggroup` WHERE group_id NOT IN ($in);");
+            $delete_stmt->execute($group_ids);
+            $stmt = $db->prepare(
+                "INSERT INTO `studip`.`bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rule_id`), `group_name` = VALUES(`group_name`), `min_amount_prios` = VALUES(`min_amount_prios`)"
+            );
+
             foreach ($decoded_request as $rankinggroup) {
-                $stmt = $db->prepare(
-                    "INSERT INTO `studip`.`bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, ?)"
-                );
                 if (empty($rankinggroup['group_id'])) {
                     $group_id = uniqid('bps_rg_');
                 } else {
                     $group_id = $rankinggroup['group_id'];
                 }
                 $stmt->execute(array($group_id, $rule_id, $rankinggroup['group_name'], $rankinggroup['min_amount_prios']));
+                if ($stmt <= 0) {
+                    throw new Trails_Exception(400, 'setting ranking groups failed');
+                }
             }
         }
 
@@ -119,33 +132,73 @@ class ConfigController extends PluginController
             $this->set_content_type('application/json');
             $this->render_text(json_encode($result));
         } else {
+            throw new Trails_Exception(404, 'ranking groups of rule not found');
+        }
+    }
+
+    public function create_ranking_group_action($rule_id)
+    {
+        $db = DBManager::get();
+        if (Request::isPost()) {
+            $stmt = $db->prepare("INSERT INTO `studip`.`bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, 0)");
+            $stmt->execute(array($group_id = uniqid('bps_rg_'), $rule_id, 'Neue Zuteilungsgruppe'));
+            if ($stmt > 0) {
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'success', 'group_id' => $group_id)));
+            } else {
+                $this->set_status(400);
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'failed')));
+            }
+        } else {
+            $this->set_status(405);
             $this->set_content_type('application/json');
-            $this->render_text(json_encode([]));
+            $this->render_text(json_encode(array('status' => 'not allowed')));
+        }
+    }
+
+    public function delete_ranking_group_action($group_id)
+    {
+        $db = DBManager::get();
+        if (Request::isDelete()) {
+            $stmt = $db->prepare("DELETE FROM `studip`.`bps_rankinggroup` WHERE `group_id` LIKE ? ESCAPE '#'");
+            $stmt->execute(array($group_id));
+            if ($stmt > 0) {
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'success')));
+            } else {
+                $this->set_status(400);
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'failed')));
+            }
+        } else {
+            $this->set_status(405);
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'not allowed')));
         }
     }
 
     public function bundleitems_action($group_id)
     {
         $db = DBManager::get();
+
         if (Request::isPost()) {
             $request = trim(file_get_contents("php://input"));
             $decoded_request = json_decode($request, true);
             if ($decoded_request === NULL) {
                 throw new Trails_Exception(500, 'bad request, could not decode json');
             }
-            $ranking_group_stmt = $db->prepare("SELECT * FROM studip.bps_rankinggroup WHERE group_id = ?");
-            $ranking_group_stmt->execute(array($group_id));
-            if (!$ranking_group_stmt->fetch(PDO::FETCH_ASSOC)) {
-                throw new Trails_Exception(404, 'group not found');
-            }
-            $insert_item_stmt = $db
-                ->prepare("INSERT INTO `studip`.`bps_bundleitem` (`item_id`, `group_id`, `start_time`, `end_time`, `weekday`) VALUES (?, ?, ?, ?, ?);");
-            $delete_items_stmt = $db
-                ->prepare("DELETE bps_bundleitem FROM bps_bundleitem WHERE bps_bundleitem.group_id = ?;");
+
+            $item_ids = array_column($decoded_request, 'item_id');
+            $in  = str_repeat('?,', count($item_ids) - 1) . '?';
+            $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_bundleitem` WHERE group_id = ? AND item_id NOT IN ($in);");
+            $delete_stmt->execute(array_merge([$group_id], $item_ids));
+
+            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (item_id, group_id, start_time, end_time, weekday) 
+VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(group_id), start_time=VALUES(start_time), end_time=VALUES(end_time), weekday=VALUES(weekday);");
             $course_stmt = $db
                 ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
 
-            $delete_items_stmt->execute(array($group_id));
 
             foreach ($decoded_request as $item) {
                 if (empty($item['item_id'])) {
@@ -154,15 +207,20 @@ class ConfigController extends PluginController
                     $item_id = $item['item_id'];
                 }
 
-                $insert_item_stmt->execute(array($item_id, $group_id,
-                    $item['start_time'], $item['end_time'], $item['weekday']));
+                $stmt->execute(array($item_id, $item['group_id'], $item['start_time'], $item['end_time'], $item['weekday']));
+                if ($stmt <= 0) {
+                    throw new Trails_Exception(400, 'setting ranking groups failed');
+                }
+
                 $db
                     ->prepare("DELETE FROM `studip`.`bps_bundleitem_course` WHERE `item_id` LIKE ? ESCAPE '#'")
                     ->execute(array($item_id));
                 foreach ($item['seminar_ids'] as $id) {
                     $course_stmt->execute(array($item_id, $id));
+                    if ($course_stmt <= 0) {
+                        throw new Trails_Exception(400, 'referencing course with bundleitem failed');
+                    }
                 }
-
             }
         }
 
@@ -188,6 +246,107 @@ class ConfigController extends PluginController
             $this->render_text(json_encode([]));
         }
 
+    }
+
+    public function create_bundleitem_action($group_id)
+    {
+        $db = DBManager::get();
+        if (Request::isPost()) {
+            $request = trim(file_get_contents("php://input"));
+            $decoded_request = json_decode($request, true);
+            if ($decoded_request === NULL) {
+                throw new Trails_Exception(500, 'bad request, could not decode json');
+            }
+
+            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (`item_id`, `group_id`, `start_time`, `end_time`, `weekday`) VALUES (?, ?, null, null, null)");
+            $stmt->execute(array($item_id = uniqid('bps_bi_'), $group_id));
+
+            $course_stmt = $db
+                ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
+            foreach ($decoded_request['seminar_ids'] as $id) {
+                $course_stmt->execute(array($item_id, $id));
+                if ($course_stmt <= 0) {
+                    throw new Trails_Exception(400, 'referencing course with bundleitem failed');
+                }
+            }
+            if ($stmt > 0) {
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'success', 'item_id' => $item_id)));
+            } else {
+                $this->set_status(400);
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'failed')));
+            }
+        } else {
+            $this->set_status(405);
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'not allowed')));
+        }
+    }
+
+    public function update_bundleitem_action($item_id)
+    {
+        $db = DBManager::get();
+        if (Request::isPost()) {
+            $request = trim(file_get_contents("php://input"));
+            $decoded_request = json_decode($request, true);
+            if ($decoded_request === NULL) {
+                throw new Trails_Exception(500, 'bad request, could not decode json');
+            }
+
+            $stmt = $db->prepare("UPDATE `studip`.`bps_bundleitem` t 
+                                SET t.`start_time` = ?,
+                                    t.`end_time` = ?,
+                                    t.`weekday` = ?
+                                WHERE t.`item_id` LIKE ? ESCAPE '#'");
+            $stmt->execute(array($decoded_request['start_time'], $decoded_request['end_time'], $decoded_request['weekday'], $item_id));
+
+            $course_stmt = $db
+                ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
+            $db
+                ->prepare("DELETE FROM `studip`.`bps_bundleitem_course` WHERE `item_id` LIKE ? ESCAPE '#'")
+                ->execute(array($item_id));
+            foreach ($decoded_request['seminar_ids'] as $id) {
+                $course_stmt->execute(array($item_id, $id));
+                if ($course_stmt <= 0) {
+                    throw new Trails_Exception(400, 'referencing course with bundleitem failed');
+                }
+            }
+
+            if ($stmt > 0) {
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'success', 'item_id' => $item_id)));
+            } else {
+                $this->set_status(400);
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'failed')));
+            }
+        } else {
+            $this->set_status(405);
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'not allowed')));
+        }
+    }
+
+    public function delete_bundleitem_action($item_id)
+    {
+        $db = DBManager::get();
+        if (Request::isDelete()) {
+            $stmt = $db->prepare("DELETE FROM `studip`.`bps_bundleitem` WHERE `item_id` LIKE ? ESCAPE '#'");
+            $stmt->execute(array($item_id));
+            if ($stmt > 0) {
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'success')));
+            } else {
+                $this->set_status(400);
+                $this->set_content_type('application/json');
+                $this->render_text(json_encode(array('status' => 'failed')));
+            }
+        } else {
+            $this->set_status(405);
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'not allowed')));
+        }
     }
 
     public function bundleitem_excl_action($rule_id)

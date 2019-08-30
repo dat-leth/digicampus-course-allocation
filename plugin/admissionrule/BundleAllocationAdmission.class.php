@@ -21,6 +21,7 @@ class BundleAllocationAdmission extends AdmissionRule
     public $distribution_time = 0;
     public $job_id = null;
     public $distribution_done = false;
+    public $minimum_timespan_to_distribution_time = 120;
 
     // --- OPERATIONS ---
 
@@ -74,6 +75,25 @@ class BundleAllocationAdmission extends AdmissionRule
     }
 
     /**
+     * Gets the time for seat distribution algorithm.
+     *
+     * @return int
+     */
+    public function getDistributionTime()
+    {
+        return $this->distribution_time;
+    }
+
+    /**
+     * Set distribution time
+     */
+    public function setDistributionTime($time)
+    {
+        $this->distribution_time = $time;
+        return $this;
+    }
+
+    /**
      * Gets the template that provides a configuration GUI for this rule.
      *
      * @return String
@@ -85,8 +105,6 @@ class BundleAllocationAdmission extends AdmissionRule
         $tpl = $factory->open('configure');
         $tpl->set_attribute('rule', $this);
         $tpl->set_attribute('courseset_id', $this->courseSetId);
-        $courses = CourseSet::getCoursesByCourseSetId($this->courseSetId);
-        $tpl->set_attribute('courses', $courses);
         return $tpl->render();
     }
 
@@ -148,10 +166,37 @@ class BundleAllocationAdmission extends AdmissionRule
     public function toString()
     {
         $factory = new Flexi_TemplateFactory(dirname(__FILE__) . '/templates/');
+        $db = DBManager::get();
+
         $tpl = $factory->open('info');
         $tpl->set_attribute('rule', $this);
+
+        $stmt = $db->prepare("SELECT * FROM `bps_rankinggroup` WHERE rule_id=?");
+        $stmt->execute(array($this->id));
+        if ($result = $stmt->fetchAll(PDO::FETCH_ASSOC)) {
+            $tpl->set_attribute('rankinggroups', $result);
+        }
+
         return $tpl->render();
     }
+
+    /**
+     * @param array $data
+     * @return AdmissionRule
+     */
+    public function setAllData($data)
+    {
+        parent::setAllData($data);
+        if ($data['distributiondate']) {
+            if (!$data['distributiontime']) {
+                $data['distributiontime'] = '23:59';
+            }
+            $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
+            $this->setDistributionTime($ddate);
+        }
+        return $this;
+    }
+
 
     /**
      * @param $data
@@ -160,8 +205,12 @@ class BundleAllocationAdmission extends AdmissionRule
     public function validate($data)
     {
         $errors = parent::validate($data);
-        if ($data['preventSave'] == 'true') {
-            $errors[] = _('Bitte überprüfen Sie Ihre Eingaben.');
+        if (!$data['distributiontime']) {
+            $data['distributiontime'] = '23:59';
+        }
+        $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
+        if (!$data['distributiondate'] || $ddate < (time() + $this->minimum_timespan_to_distribution_time*60)) {
+            $errors[] = sprintf(_('Bitte geben Sie für die Platzverteilung ein Datum an, das weiter in der Zukunft liegt. Das frühestmögliche Datum ist %s.'), strftime('%x %R', time() + $this->minimum_timespan_to_distribution_time*60));
         }
         return $errors;
     }
