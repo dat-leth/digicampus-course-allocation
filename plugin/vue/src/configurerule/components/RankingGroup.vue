@@ -49,18 +49,12 @@
                 </tr>
                 <template v-for="(bundle) in bundleItems">
                     <tr v-for="(course, j) in courseDetails(bundle.seminar_ids)" :key="course.seminar_id">
-                        <td :rowspan="bundle.seminar_ids.length" v-if="j === 0">
+                        <td :rowspan="bundle.seminar_ids.length" v-if="j === 0"
+                            :style="{ borderRight: (bundle.seminar_ids.length > 1) ? '3px solid #e7ebf1' : '3px none'}">
                             <input type="checkbox" v-model="checkboxed[bundle.item_id]"/>
                         </td>
-                        <td :style="{ borderLeft: (bundle.seminar_ids.length > 1) ? '3px solid #e7ebf1' : '3px none'}">{{ course.name }}</td>
-                        <td>
-                            <ul>
-                                <li v-for="(cycle, k) in course.cycles" :key="k">
-                                    {{ cycle.weekday | weekday }}, {{ cycle.start_time | time }} - {{ cycle.end_time |
-                                    time }}
-                                </li>
-                            </ul>
-                        </td>
+                        <td>{{ course.name }}</td>
+                        <td><span v-html="course.times_rooms"></span></td>
                         <td>{{ course.capacity }}</td>
                     </tr>
                 </template>
@@ -110,14 +104,7 @@
                         </button>
                     </td>
                     <td>{{ course.name }}</td>
-                    <td>
-                        <ul>
-                            <li v-for="(cycle, j) in course.cycles" :key="j">
-                                {{ cycle.weekday | weekday }}, {{ cycle.start_time | time }} - {{ cycle.end_time | time
-                                }}
-                            </li>
-                        </ul>
-                    </td>
+                    <td><span v-html="course.times_rooms"></span></td>
                     <td>{{ course.capacity }}</td>
                 </tr>
                 </tbody>
@@ -128,7 +115,6 @@
 
 <script>
     import {mapGetters} from 'vuex'
-    import moment from 'moment'
 
     export default {
         name: "RankingGroup",
@@ -204,14 +190,6 @@
                 }
                 this.checkboxed = {};
                 this.action = '';
-            }
-        },
-        filters: {
-            weekday: function (number) {
-                return moment().isoWeekday(number).format('dddd');
-            },
-            time: function (time) {
-                return moment(time, 'HH:mm:ss').format('HH:mm')
             }
         }
     }

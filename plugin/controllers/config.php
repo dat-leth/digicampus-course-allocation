@@ -79,14 +79,10 @@ class ConfigController extends PluginController
         foreach ($courses as $i => $course) {
             $courses[$i]['seminar_id'] = $course['seminar_id'];
             $c = Course::find($course['seminar_id']);
+            $sem = Seminar::GetInstance($course['seminar_id']);
             $courses[$i]['name'] = $c->getFullname('number-name-semester');
             $courses[$i]['capacity'] = (int)$c->admission_turnout;
-            $cycles = SeminarCycleDate::findBySeminar($course['seminar_id']);
-            foreach ($cycles as $j => $cycle) {
-                $courses[$i]['cycles'][$j]['start_time'] = $cycle->start_time;
-                $courses[$i]['cycles'][$j]['end_time'] = $cycle->end_time;
-                $courses[$i]['cycles'][$j]['weekday'] = (int)$cycle->weekday;
-            }
+            $courses[$i]['times_rooms'] = $sem->getDatesTemplate('dates/seminar_html', ['link_to_dates' => $show_link, 'show_room' => true]);
         }
         $names = array_column($courses, 'name');
         array_multisort($names, SORT_ASC, $courses);

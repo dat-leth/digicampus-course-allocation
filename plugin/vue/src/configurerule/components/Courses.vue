@@ -11,7 +11,7 @@
             <tr>
                 <th></th>
                 <th>Veranstaltung</th>
-                <th>Regelmäßige Termine</th>
+                <th>Zeit/Veranstaltungsort</th>
                 <th>max. Teilnehmendenanzahl</th>
             </tr>
             </thead>
@@ -33,13 +33,7 @@
                     </a>
                 </td>
                 <td>{{ course.name }}</td>
-                <td>
-                    <ul>
-                        <li v-for="(cycle, j) in course.cycles" :key="j">
-                            {{ cycle.weekday | weekday }}, {{ cycle.start_time | time }} - {{ cycle.end_time | time }}
-                        </li>
-                    </ul>
-                </td>
+                <td><span v-html="course.times_rooms"></span></td>
                 <td><input type="number" min="0" placeholder="0" :value="course.capacity"
                            @input="updateCapacity($event, index)"/></td>
             </tr>
@@ -55,7 +49,6 @@
 
 <script>
     import {mapState} from 'vuex'
-    import moment from 'moment'
     import axios from 'axios'
 
     export default {
@@ -77,14 +70,6 @@
             },
             updateCapacity: function (event, index) {
                 this.$store.dispatch('setCourseCapacity', {index: index, capacity: parseFloat(event.target.value)})
-            }
-        },
-        filters: {
-            weekday: function (number) {
-                return moment().isoWeekday(number).format('dddd');
-            },
-            time: function (time) {
-                return moment(time, 'HH:mm:ss').format('HH:mm')
             }
         }
     }
