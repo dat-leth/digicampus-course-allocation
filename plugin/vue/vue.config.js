@@ -9,7 +9,11 @@ module.exports = {
             entry: 'src/configurerule/main.js',
             template: 'public/configurerule/configure.php',
             filename: 'configurerule/configure.php'
+        },
+        enrollment: {
+            entry: 'src/enrollment/main.js',
+            template: 'public/enrollment/apply.php',
+            filename: 'enrollment/apply.php'
         }
     },
-}
-  
+};

@@ -1,8 +1,19 @@
-Hallo Welt! <?= $course_id ?>
-<div id="mount_me"></div>
-<!-- TODO: Vue.js render timetable with ranking items and previous preferences, submit button axios POST to apply endpoint -->
+<script>
+    const BUNDLEALLOCATION = {
+        distribution_time: <?= $distribution_time ?>,
+        ranking_group: <?= json_encode($ranking_group) ?>,
+        courses: <?= json_encode($courses) ?>,
+        ranking: <?= json_encode($ranking) ?>,
+        existing_entries: <?= json_encode($existing_entries) ?>,
+        other_rankings: <?= json_encode($other_rankings) ?>,
+        other_ranking_groups: <?= json_encode($other_ranking_groups) ?>,
+    }
+</script>
+
+<div id="app"></div>
 <div data-dialog-button>
-    <button>asdf</button>
-    <?= Studip\Button::createAccept(_('Speichern'), '', ['data-dialog' => 'size=big']) ?>
-    <?= Studip\Button::createCancel(_('Schließen'), 'cancel') ?>
+    <? if (time() < $distribution_time): ?>
+    <button type="submit" class="accept button bps-button" data-dialog="size=big" name="Speichern">Speichern</button>
+    <? endif; ?>
+    <button type="submit" class="cancel button bps-button" name="cancel">Schließen</button>
 </div>

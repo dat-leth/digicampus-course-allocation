@@ -102,8 +102,8 @@ class ConfigController extends PluginController
 
             $group_ids = array_column($decoded_request, 'group_id');
             $in  = str_repeat('?,', count($group_ids) - 1) . '?';
-            $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_rankinggroup` WHERE group_id NOT IN ($in);");
-            $delete_stmt->execute($group_ids);
+            $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_rankinggroup` WHERE group_id NOT IN ($in) AND rule_id = ?;");
+            $delete_stmt->execute(array_merge($group_ids, [$rule_id]));
             $stmt = $db->prepare(
                 "INSERT INTO `studip`.`bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rule_id`), `group_name` = VALUES(`group_name`), `min_amount_prios` = VALUES(`min_amount_prios`)"

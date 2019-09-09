@@ -52,6 +52,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
         }
         $json['bundle_items'] = array_values($bundleItems);
 
+        // TODO: calculate overlaps based on dates
         $exclStmt = $db->prepare("SELECT ex.*
         FROM bps_bundleitem_excluding ex
         JOIN bps_bundleitem bb on ex.item_id = bb.item_id
