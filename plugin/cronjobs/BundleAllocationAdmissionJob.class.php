@@ -1,6 +1,6 @@
 <?php
 
-
+require_once __DIR__ . '/../composer_modules/autoload.php';
 class BundleAllocationAdmissionJob extends CronJob
 {
 
@@ -30,6 +30,7 @@ class BundleAllocationAdmissionJob extends CronJob
      */
     public function execute($last_result, $parameters = array())
     {
+        var_dump(class_exists('GuzzleHttp\Client', true));
         // TODO: Implement execute() method.
         // Fetch courseset ids from database where BundleAllocationAdmissionRule and non completed allocation
         // Create courseset object

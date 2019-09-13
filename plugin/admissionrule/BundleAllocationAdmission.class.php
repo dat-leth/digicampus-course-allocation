@@ -93,6 +93,18 @@ class BundleAllocationAdmission extends AdmissionRule
         return $this;
     }
 
+    public function getDistributionDone()
+    {
+        return $this->distribution_done;
+    }
+
+    public function setDistributionDone($done)
+    {
+        $this->distribution_done = $done;
+        return $this;
+    }
+
+
     /**
      * Gets the template that provides a configuration GUI for this rule.
      *
@@ -151,10 +163,10 @@ class BundleAllocationAdmission extends AdmissionRule
     {
         // Store data.
         $stmt = DBManager::get()->prepare("INSERT INTO `bpsadmissions`
-            (`rule_id`, `message`, `distribution_time`, `mkdate`, `chdate`)
-            VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
-            `message`=VALUES(`message`), `distribution_time`=VALUES(`distribution_time`), `chdate`=VALUES(`chdate`)");
-        $stmt->execute(array($this->id, $this->default_message, $this->distribution_time, time(), time()));
+            (`rule_id`, `message`, `distribution_time`, `distribution_done`, `mkdate`, `chdate`)
+            VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
+            `message`=VALUES(`message`), `distribution_time`=VALUES(`distribution_time`), `distribution_done`=VALUES(`distribution_done`), `chdate`=VALUES(`chdate`)");
+        $stmt->execute(array($this->id, $this->default_message, $this->distribution_time, $this->distribution_done, time(), time()));
         return $this;
     }
 
