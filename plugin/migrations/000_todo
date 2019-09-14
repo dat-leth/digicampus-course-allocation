@@ -1,5 +1,0 @@
-TODO:
-    - setup database tables for recording preferences
-    - cronjob: fetch admissionrules from database where no allocation received in studip
-        if already submitted to allocation microservice: query job (callback might have been broken)
-        else: submit job

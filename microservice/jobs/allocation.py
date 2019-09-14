@@ -8,8 +8,7 @@ import collections
 import uuid
 
 
-# TODO: Add robustness on failing database
-# TODO: Add ability to set epsilon and gamma via API
+# TODO: Token for Stud.IP
 @rq.job
 def generate(student_preferences, callback_url):
     epsilon = 1

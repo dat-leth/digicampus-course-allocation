@@ -14,7 +14,8 @@ def post_allocation():
     data = {
         "detail": "Requested allocation was accepted.",
         "status": 202,
-        "job": url_for(".api_allocation_get_job", job_id=job.id, _external=True),
+        "job_url": url_for(".api_allocation_get_job", job_id=job.id, _external=True),
+        "job_id": job.id,
     }
 
     resp = make_response(jsonify(data), 202)

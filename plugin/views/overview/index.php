@@ -39,7 +39,7 @@
                                    href="/dispatch.php/course/details/index/<?= $course['seminar_id'] ?>">
                                     <img alt="info-circle" title="Veranstaltungsdetails anzeigen"
                                          style="cursor: pointer"
-                                         src="https://demo.studip.de/assets/images/icons/grey/info-circle.svg"
+                                         src="/assets/images/icons/grey/info-circle.svg"
                                          class="icon-role-inactive icon-shape-info-circle" width="20" height="20"> </a>
                             </td>
                             <? if (array_search($course['seminar_id'], array_keys($item['courses'])) == 0): ?>
@@ -50,7 +50,7 @@
                                     <a
                                             href="/plugins.php/bundleallocationplugin/enrollment/apply/<?= $course['seminar_id'] ?>">
                                         <img title="Prioritäten anpassen"
-                                             src="https://demo.studip.de/assets/images/icons/grey/admin.svg"
+                                             src="/assets/images/icons/grey/admin.svg"
                                              alt="Prioritäten anpassen"
                                              class="icon-role-inactive icon-shape-door-leave" width="20" height="20">
                                     </a>

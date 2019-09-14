@@ -19,9 +19,6 @@ class SetupBpsDatabase extends Migration
         $db->exec("CREATE TABLE IF NOT EXISTS bps_bundleitem (
     item_id varchar(23) NOT NULL,
     group_id varchar(23) NOT NULL,
-    start_time time,
-    end_time time,
-    weekday tinyint(3) unsigned,
     PRIMARY KEY (item_id),
     FOREIGN KEY (group_id) REFERENCES bps_rankinggroup(group_id) ON DELETE CASCADE 
 );");
@@ -30,13 +27,6 @@ class SetupBpsDatabase extends Migration
     seminar_id varchar(32) NOT NULL,
     PRIMARY KEY (item_id, seminar_id),
     FOREIGN KEY (item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE
-);");
-        $db->exec("CREATE TABLE IF NOT EXISTS bps_bundleitem_excluding (
-    item_id varchar(23) NOT NULL,
-    excl_item_id varchar(23) NOT NULL,
-    PRIMARY KEY (item_id, excl_item_id),
-    FOREIGN KEY (item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE,
-    FOREIGN KEY (excl_item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE 
 );");
         $db->exec("CREATE TABLE IF NOT EXISTS bps_bundleitem_ranking (
     user_id varchar(32) NOT NULL,
@@ -70,7 +60,6 @@ class SetupBpsDatabase extends Migration
         $db->exec("DROP TABLE `bps_bundleitem`");
         $db->exec("DROP TABLE `bps_bundleitem_course`");
         $db->exec("DROP TABLE `bps_bundleitem_ranking`");
-        $db->exec("DROP TABLE `bps_bundleitem_excluding`");
         $db->exec("DROP TABLE `bps_prelim_alloc`");
         SimpleORMap::expireTableScheme();
     }

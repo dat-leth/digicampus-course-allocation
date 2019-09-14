@@ -18,13 +18,6 @@ class ConfigController extends PluginController
         }
     }
 
-    public function index_action()
-    {
-        PageLayout::setTitle('Bundle Allocation verwalten');
-        PageLayout::setTabNavigation('/tools');
-        Navigation::activateItem('/tools/coursesets/bps_config');
-    }
-
     public function courses_capacity_action($courseset_id)
     {
         $courses = CourseSet::getCoursesByCourseSetId($courseset_id);
@@ -190,8 +183,8 @@ ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rul
             $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_bundleitem` WHERE group_id = ? AND item_id NOT IN ($in);");
             $delete_stmt->execute(array_merge([$group_id], $item_ids));
 
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (item_id, group_id, start_time, end_time, weekday) 
-VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(group_id), start_time=VALUES(start_time), end_time=VALUES(end_time), weekday=VALUES(weekday);");
+            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (item_id, group_id) 
+VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(group_id);");
             $course_stmt = $db
                 ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
 
@@ -203,7 +196,7 @@ VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id
                     $item_id = $item['item_id'];
                 }
 
-                $stmt->execute(array($item_id, $item['group_id'], $item['start_time'], $item['end_time'], $item['weekday']));
+                $stmt->execute(array($item_id, $item['group_id']));
                 if ($stmt <= 0) {
                     throw new Trails_Exception(400, 'setting ranking groups failed');
                 }
@@ -254,7 +247,7 @@ VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id
                 throw new Trails_Exception(500, 'bad request, could not decode json');
             }
 
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (`item_id`, `group_id`, `start_time`, `end_time`, `weekday`) VALUES (?, ?, null, null, null)");
+            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (`item_id`, `group_id`) VALUES (?, ?)");
             $stmt->execute(array($item_id = uniqid('bps_bi_'), $group_id));
 
             $course_stmt = $db
@@ -290,13 +283,6 @@ VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id
                 throw new Trails_Exception(500, 'bad request, could not decode json');
             }
 
-            $stmt = $db->prepare("UPDATE `studip`.`bps_bundleitem` t 
-                                SET t.`start_time` = ?,
-                                    t.`end_time` = ?,
-                                    t.`weekday` = ?
-                                WHERE t.`item_id` LIKE ? ESCAPE '#'");
-            $stmt->execute(array($decoded_request['start_time'], $decoded_request['end_time'], $decoded_request['weekday'], $item_id));
-
             $course_stmt = $db
                 ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
             $db
@@ -309,14 +295,9 @@ VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id
                 }
             }
 
-            if ($stmt > 0) {
-                $this->set_content_type('application/json');
-                $this->render_text(json_encode(array('status' => 'success', 'item_id' => $item_id)));
-            } else {
-                $this->set_status(400);
-                $this->set_content_type('application/json');
-                $this->render_text(json_encode(array('status' => 'failed')));
-            }
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'success', 'item_id' => $item_id)));
+
         } else {
             $this->set_status(405);
             $this->set_content_type('application/json');

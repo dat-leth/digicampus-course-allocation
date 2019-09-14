@@ -30,7 +30,7 @@ class BundleAllocationPlugin extends StudIPPlugin implements SystemPlugin, RESTA
         if ($GLOBALS['perm']->have_perm('admin') || ($GLOBALS['perm']->have_perm('dozent')
                 && get_config('ALLOW_DOZENT_COURSESET_ADMIN'))) {
             $configNav = new Navigation('Bundle Allocation verwalten');
-            $configNav->setURL(PluginEngine::getURL($this, [], 'config/index'));
+            $configNav->setURL(PluginEngine::getURL($this, [], 'admission/index'));
             Navigation::addItem('tools/coursesets/bps_config', $configNav);
         }
     }
