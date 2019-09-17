@@ -33,8 +33,8 @@ class SetupBpsDatabase extends Migration
     group_id varchar(23) NOT NULL,
     item_id varchar(23) NOT NULL,
     priority int NOT NULL DEFAULT 0,
-    mkdate int NOT NULL DEFAULT 0,
-    chdate int NOT NULL DEFAULT 0,
+    mkdate int NOT NULL DEFAULT UNIX_TIMESTAMP(),
+    chdate int NOT NULL DEFAULT UNIX_TIMESTAMP(),
     PRIMARY KEY (user_id, group_id, item_id),
     FOREIGN KEY (group_id) REFERENCES bps_rankinggroup(group_id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE 
@@ -42,7 +42,7 @@ class SetupBpsDatabase extends Migration
         $db->exec("CREATE TABLE IF NOT EXISTS bps_prelim_alloc (
     user_id varchar(32) NOT NULL,
     item_id varchar(23) NOT NULL,
-    seminar_id varchar(23) NOT NULL,
+    seminar_id varchar(32) NOT NULL,
     priority int NOT NULL,
     PRIMARY KEY (user_id, item_id, seminar_id),
     FOREIGN KEY (item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE

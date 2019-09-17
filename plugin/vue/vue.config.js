@@ -14,6 +14,11 @@ module.exports = {
             entry: 'src/enrollment/main.js',
             template: 'public/enrollment/apply.php',
             filename: 'enrollment/apply.php'
+        },
+        admission: {
+            entry: 'src/admission/main.js',
+            template: 'public/admission/applications.php',
+            filename: 'admission/applications.php'
         }
     },
 };

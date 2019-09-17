@@ -68,7 +68,7 @@
                         height: this.position.height.slice(0, -2) - 2 + 'px',
                         border: '1px solid' + this.entry.color,
                         backgroundColor: new TinyColor(this.entry.color).brighten(5).toString(),
-                        opacity: .8
+                        opacity: .5
                     }
                 }
                 return {

@@ -182,6 +182,7 @@ class BundleAllocationAdmission extends AdmissionRule
 
         $tpl = $factory->open('info');
         $tpl->set_attribute('rule', $this);
+        $tpl->set_attribute('coursesetId', $this->courseSetId);
 
         $stmt = $db->prepare("SELECT * FROM `bps_rankinggroup` WHERE rule_id=?");
         $stmt->execute(array($this->id));

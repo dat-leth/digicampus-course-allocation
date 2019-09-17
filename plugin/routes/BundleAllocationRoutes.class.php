@@ -122,9 +122,12 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
 
         if (!empty($rule) && !$rule->getDistributionDone()) {
             $db = DBManager::get();
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_prelim_alloc` (user_id, item_id, seminar_id, priority) VALUES (?, ?, ?, ?);");
+            $stmt = $db->prepare("INSERT INTO `studip`.`bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
+                VALUES (?, ?, ?, ?, ?, FALSE) 
+                ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), seminar_id=VALUES(seminar_id), priority=VALUES(priority);");
+
             foreach ($this->data as $alloc) {
-                $stmt->execute(array($alloc['student'], $alloc['bundle_item'], $alloc['course'], $alloc['priority']));
+                $stmt->execute(array($alloc['student'], $alloc['ranking_group'], $alloc['bundle_item'], $alloc['course'], $alloc['priority']));
                 if ($stmt <= 0) {
                     $this->error(400, 'Could not save allocations');
                 }
@@ -132,8 +135,8 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
             $rule->setDistributionDone(true);
             $rule->store();
             $msg_title = sprintf('Anmeldeset %s: Verteilergebnisse stehen zur Verfügung', $set->getName());
-            $msg_body = sprintf('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die (angepasste) Verteilung muss vorher bestätigt werden.',
-                $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/index'));
+            $msg_body = sprintf('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die Zuteilungen müssen vorher bestätigt werden.',
+                $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/applications/' . $setId));
             messaging::sendSystemMessage($set->getUserId(), $msg_title, $msg_body);
 
             return ['status' => '200', 'message' => 'Successfully saved allocations.', 'done' => $rule->getDistributionDone()];

@@ -32,7 +32,7 @@
         <div class="messagebox messagebox_error" v-if="error.length !== 0">
             <div class="messagebox_buttons">
                 <a class="close" href="#" title="Nachrichtenbox schliessen"
-                   v-on:click.prevent="error = false">
+                   v-on:click.prevent="error = ''">
                     <span>Nachrichtenbox schliessen</span>
                 </a>
             </div>

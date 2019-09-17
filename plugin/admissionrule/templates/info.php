@@ -2,11 +2,11 @@
 <br>
 <? if ($rule->getDistributionTime()) : ?>
     <? if ($rule->getDistributionTime() > time()) : ?>
-        <?= sprintf(_('Die Plätze in den betreffenden Veranstaltungen werden am %s '.
+        <?= sprintf(_('Die Plätze in den betreffenden Veranstaltungen werden am %s ' .
             'um %s verteilt.'), date("d.m.Y", $rule->getDistributionTime()),
             date("H:i", $rule->getDistributionTime())) ?>
     <? else : ?>
-        <?= sprintf(_('Die Plätze in den betreffenden Veranstaltungen wurden am %s '.
+        <?= sprintf(_('Die Plätze in den betreffenden Veranstaltungen wurden am %s ' .
             'um %s verteilt. Weitere Plätze werden evtl. über Wartelisten zur Verfügung gestellt.'), date("d.m.Y", $rule->getDistributionTime()),
             date("H:i", $rule->getDistributionTime())) ?>
     <? endif ?>
@@ -16,10 +16,16 @@ Es wird überschneidungsfrei jeweils eine (1) Veranstaltung pro Zuteilungsgruppe
 Prioritäten dafür abgegeben wurden. Überschneidungen zu Veranstaltungen außerhalb dieses Anmeldesets werden
 <strong>NICHT</strong> berücksichtigt!
 <? if (!empty($rankinggroups)) : ?>
-<ul>
-    <? foreach ($rankinggroups as $group): ?>
-    <li><?= $group['group_name'] ?> (Mindestanzahl abzugebener Prioritäten: <?= $group['min_amount_prios'] ?>)</li>
-    <? endforeach; ?>
-</ul>
+    <ul>
+        <? foreach ($rankinggroups as $group): ?>
+            <li><?= $group['group_name'] ?> (Mindestanzahl abzugebener Prioritäten: <?= $group['min_amount_prios'] ?>)
+            </li>
+        <? endforeach; ?>
+    </ul>
 <? endif ?>
 
+<? if (match_route('dispatch.php/admission/courseset/configure')
+    && ($GLOBALS['perm']->have_perm('admin') || ($GLOBALS['perm']->have_perm('dozent') && get_config('ALLOW_DOZENT_COURSESET_ADMIN')))
+): ?>
+    <a data-dialog=auto class="button" href="<?= PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/applications/' . $coursesetId) ?>">Anmeldungen verwalten</a>
+<? endif ?>

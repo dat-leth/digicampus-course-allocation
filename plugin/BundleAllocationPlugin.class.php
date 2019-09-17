@@ -27,12 +27,6 @@ class BundleAllocationPlugin extends StudIPPlugin implements SystemPlugin, RESTA
             $studentPrioNav->setURL(PluginEngine::getURL($this, [], 'overview/index'));
             Navigation::addItem('/browse/my_courses/bps_overview', $studentPrioNav);
         }
-        if ($GLOBALS['perm']->have_perm('admin') || ($GLOBALS['perm']->have_perm('dozent')
-                && get_config('ALLOW_DOZENT_COURSESET_ADMIN'))) {
-            $configNav = new Navigation('Bundle Allocation verwalten');
-            $configNav->setURL(PluginEngine::getURL($this, [], 'admission/index'));
-            Navigation::addItem('tools/coursesets/bps_config', $configNav);
-        }
     }
 
     private function overrideApplyLink()

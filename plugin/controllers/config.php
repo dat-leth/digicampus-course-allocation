@@ -75,7 +75,7 @@ class ConfigController extends PluginController
             $sem = Seminar::GetInstance($course['seminar_id']);
             $courses[$i]['name'] = $c->getFullname('number-name-semester');
             $courses[$i]['capacity'] = (int)$c->admission_turnout;
-            $courses[$i]['times_rooms'] = $sem->getDatesTemplate('dates/seminar_html', ['link_to_dates' => $show_link, 'show_room' => true]);
+            $courses[$i]['times_rooms'] = $sem->getDatesTemplate('dates/seminar_html', ['show_room' => true]);
         }
         $names = array_column($courses, 'name');
         array_multisort($names, SORT_ASC, $courses);

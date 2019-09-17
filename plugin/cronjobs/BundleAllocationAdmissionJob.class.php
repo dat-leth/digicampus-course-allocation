@@ -115,14 +115,16 @@ class BundleAllocationAdmissionJob extends CronJob
         $response = $client->request('GET', $locationUrl);
         $data = json_decode($response->getBody());
         $db = DBManager::get();
-        $stmt = $db->prepare("INSERT INTO `studip`.`bps_prelim_alloc` (user_id, item_id, seminar_id, priority) VALUES (?, ?, ?, ?);");
+        $stmt = $db->prepare("INSERT INTO `studip`.`bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
+                VALUES (?, ?, ?, ?, ?, FALSE) 
+                ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), seminar_id=VALUES(seminar_id), priority=VALUES(priority);");
         foreach ($data as $alloc) {
-            $stmt->execute(array($alloc->student, $alloc->bundle_item, $alloc->course, $alloc->priority));
+            $stmt->execute(array($alloc->student, $alloc->ranking_group, $alloc->bundle_item, $alloc->course, $alloc->priority));
         }
 
         $msg_title = sprintf('Anmeldeset %s: Verteilergebnisse stehen zur Verfügung', $set->getName());
-        $msg_body = sprintf('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die (angepasste) Verteilung muss vorher bestätigt werden.',
-            $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/'.$setId));
+        $msg_body = sprintf('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die Zuteilungen müssen vorher bestätigt werden.',
+            $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/applications/' . $setId));
         messaging::sendSystemMessage($set->getUserId(), $msg_title, $msg_body);
         $rule->setDistributionDone(true);
         $rule->store();

@@ -58,6 +58,7 @@ def generate(student_preferences, callback_url):
         for student in item.members:
             a = Allocation(alloc_id=str(allocation_id),
                            student=student.student_id,
+                           ranking_group=item.ranking_group,
                            bundle_item=item.bundle_item_id,
                            course=item.members[student].course_id,
                            priority=student.rankings[item.ranking_group].index(item) + 1)
