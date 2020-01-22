@@ -8,6 +8,7 @@ connex.add_api('bundle-allocation_openapi.yaml')
 application = connex.app
 application.register_blueprint(cli.bp_cleanup)
 application.register_blueprint(cli.bp_token)
+application.register_blueprint(cli.bp_db)
 
 
 # Create a URL route in our application for "/"

@@ -63,3 +63,15 @@ def cleanup():
     """Removing old allocation data from SQLite database."""
     Allocation.query.filter(Allocation.timestamp > datetime.datetime.utcnow() + datetime.timedelta(hours=48)).delete()
     db.session.commit()
+
+
+bp_db = Blueprint('init-database', __name__, cli_group=None)
+
+
+@bp_db.cli.command('init-database')
+def init():
+    # Delete database file if it exists currently
+    if os.path.exists("database.sqlite"):
+        os.remove("database.sqlite")
+    db.create_all()
+    db.session.commit()
