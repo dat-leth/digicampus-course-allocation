@@ -9,7 +9,7 @@ import numpy as np
 import collections
 import uuid
 
-EPSILON = 1
+EPSILON = 0.35
 GAMMA = 10
 
 rs = RootSchema()
@@ -32,8 +32,11 @@ if delta == 0.0:
 
 convex_combination = bundle_allocation.lottery(bps_alloc, students, EPSILON, delta)
 
-chosen_alloc = np.random.choice([alloc for alloc, coeff in convex_combination],
-                                p=[coeff for alloc, coeff in convex_combination])
+# chosen_alloc = np.random.choice([alloc for alloc, coeff in convex_combination],
+#                                 p=[coeff for alloc, coeff in convex_combination])
+
+argmax = np.asarray([coeff for alloc, coeff in convex_combination]).argmax()
+chosen_alloc = [alloc for alloc, coeff in convex_combination][argmax]
 
 bundle_item_alloc = collections.defaultdict(list)
 for i, (student, bundle) in enumerate(chosen_alloc.indices):

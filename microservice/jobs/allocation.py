@@ -6,9 +6,9 @@ import requests
 import numpy as np
 import collections
 import uuid
+import os
 
 
-# TODO: Token for Stud.IP
 @rq.job
 def generate(student_preferences, callback_url):
     epsilon = 1
@@ -17,7 +17,8 @@ def generate(student_preferences, callback_url):
     schema = RootSchema()
 
     # Request student preferences resource from remote server
-    res = requests.get(student_preferences)
+    auth_header = {'PRIVATE-TOKEN': os.getenv('DC_PRIVATE_TOKEN')}
+    res = requests.get(student_preferences, headers=auth_header)
     res.raise_for_status()
 
     # Deserialize data

@@ -89,3 +89,13 @@ paths:
           schema:
             type: string
             example: "12345678-1234-5678-1234-567812345678"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      x-bearerInfoFunc: auth.verify_token
+
+security:
+  - bearerAuth: []

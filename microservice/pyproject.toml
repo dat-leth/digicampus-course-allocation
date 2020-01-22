@@ -7,13 +7,15 @@ authors = ["Dat Le Thanh <dat.lethanh@student.uni-augsburg.de>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 connexion = {version = "^2.3", extras = ["swagger-ui"]}
-marshmallow = {version = "^2.19",allows-prereleases = true}
+marshmallow = {version = "^3.3"}
 bundle_allocation = {path = "../bundle_allocation/"}
 Flask-RQ2 = "^18.3"
 flask_sqlalchemy = "^2.4"
 flask_marshmallow = "^0.10.1"
 marshmallow-sqlalchemy = "^0.17.0"
 pandas = "^0.25.0"
+gunicorn = "^20.0.4"
+python-dotenv = "^0.10.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

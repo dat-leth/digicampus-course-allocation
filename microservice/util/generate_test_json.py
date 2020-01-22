@@ -29,13 +29,13 @@ def import_csv(path, name_prefix):
     rankings = collections.defaultdict(list)
     for vv_id in df_prios.index:
         ranked_timeslots = df_prios.loc[vv_id].dropna().sort_values().index.to_list()
-        rankings[int(vv_id)] = [b for t in ranked_timeslots for b in bundle_items if b.bundle_item_id == f"b{name_prefix} {t}"]
+        rankings[str(vv_id)] = [b for t in ranked_timeslots for b in bundle_items if b.bundle_item_id == f"b{name_prefix} {t}"]
 
     return courses, bundle_items, rankings
 
 
 if __name__ == "__main__":
-    prios = {'Info2': '../../data/vv_ss18_info2.csv', 'SI': '../../data/vv_ss18_si.csv', 'TI': '../../data/vv_ss18_ti.csv'}
+    prios = {'Info1': '../../data/ws1920/ws1920_info1_vv_2.csv', 'DisLo': '../../data/ws1920/ws1920_dislo_vv_2-2.csv'}
     results = {}
     students = {}
     for p in prios:
@@ -64,6 +64,6 @@ if __name__ == "__main__":
     }
 
     rs = RootSchema()
-    with open('../marshmallow_vv_complete.json', 'w') as f:
+    with open('../marshmallow_vv_ws1920_2-dislo.json', 'w') as f:
         f.write(rs.dumps(data))
 

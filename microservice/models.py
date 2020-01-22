@@ -17,6 +17,13 @@ class Allocation(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
 
 
+class AuthToken(db.Model):
+    __tablename__ = "auth_token"
+    name = db.Column(db.String, primary_key=True)
+    token = db.Column(db.String, unique=True)
+    expiration = db.Column(db.DateTime)
+
+
 class AllocationSchema(ma.ModelSchema):
     class Meta:
         model = Allocation
