@@ -9,7 +9,7 @@ import uuid
 import os
 
 
-@rq.job
+@rq.job('generate')
 def generate(student_preferences, callback_url):
     epsilon = 1
     gamma = 10
@@ -41,8 +41,10 @@ def generate(student_preferences, callback_url):
 
     # Select integral allocation
     convex_combination = bundle_allocation.lottery(bps_alloc, students, epsilon, delta)
-    chosen_alloc = np.random.choice([alloc for alloc, coeff in convex_combination],
-                                    p=[coeff for alloc, coeff in convex_combination])
+    argmax = np.asarray([np.sum(alloc.vector) for alloc, coeff in convex_combination]).argmax()
+    chosen_alloc = [alloc for alloc, coeff in convex_combination][argmax]
+    # chosen_alloc = np.random.choice([alloc for alloc, coeff in convex_combination],
+    #                                 p=[coeff for alloc, coeff in convex_combination])
 
     # Allocate student to bundle_item/course
     bundle_item_alloc = collections.defaultdict(list)
@@ -53,6 +55,8 @@ def generate(student_preferences, callback_url):
 
     # Save to database
     allocation_id = uuid.uuid4()
+    while Allocation.query.filter(Allocation.alloc_id == allocation_id).first() is not None:
+        allocation_id = uuid.uuid4()
     allocations = []
     for item in bundle_item_alloc:
         item.distribute_to_courses(bundle_item_alloc[item])
@@ -72,8 +76,7 @@ def generate(student_preferences, callback_url):
     return str(allocation_id)
 
 
-# TODO: Move callback to another queue and add retries
-@rq.job
+@rq.job('callback')
 def callback(url, data):
     r = requests.post(url=url, data=data)
     r.raise_for_status()

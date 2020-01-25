@@ -61,6 +61,11 @@ These instructions will get you a copy of the project up and running on your loc
     ```
     $ flask token create NAME_OF_TOKEN --expiry 180
     ```
+- Create (multiple) worker for queues generate and callback
+    ```
+    $ flask rq worker generate
+    $ flask rq worker callback
+    ```
 - Serve WSGI applications via gunicorn
     ``` 
     gunicorn --reload --worker 4 app:application --bind 0.0.0.0:57887

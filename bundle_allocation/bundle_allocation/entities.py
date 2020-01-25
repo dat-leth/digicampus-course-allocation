@@ -4,6 +4,8 @@ from typing import List, Tuple, Dict
 import numpy as np
 import itertools
 import random
+import math
+
 
 @dataclass
 class Course:
@@ -59,7 +61,7 @@ class Student:
                 remainings = list(bundle)
                 remainings.remove(item)
                 if any(
-                    remaining_item in overlaps[item] for remaining_item in remainings
+                        remaining_item in overlaps[item] for remaining_item in remainings
                 ):
                     overlapping_bundles.append(bundle)
                     break
@@ -98,7 +100,7 @@ def _sort_score(bundle, student):
     sum_ranks = 0
     sum_capacity = 0
     for item in bundle:
-        sum_ranks += student.rankings[item.ranking_group].index(item) + 1
+        sum_ranks += math.exp(student.rankings[item.ranking_group].index(item) + 1)
         sum_capacity += item.sum_capacity
-    score = sum_ranks + (1 - (1 / sum_capacity))
+    score = sum_ranks + (1 / sum_capacity)
     return score

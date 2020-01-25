@@ -186,6 +186,6 @@ urllib3==1.25.8 \
 werkzeug==0.16.0 \
     --hash=sha256:e5f4a1f98b52b18a93da705a7458e55afb26f32bff83ff5d19189f92462d65c4 \
     --hash=sha256:7280924747b5733b246fe23972186c6b348f9ae29724135a6dfc1e53cea433e7
-zipp==2.0.0; python_version < "3.8" \
-    --hash=sha256:57147f6b0403b59f33fd357f169f860e031303415aeb7d04ede4839d23905ab8 \
-    --hash=sha256:7ae5ccaca427bafa9760ac3cd8f8c244bfc259794b5b6bb9db4dda2241575d09
+zipp==2.0.1; python_version < "3.8" \
+    --hash=sha256:e013e7800f60ec4dde789ebf4e9f7a54236e4bbf5df2a1a4e20ce9e1d9609d67 \
+    --hash=sha256:b338014b9bc7102ca69e0fb96ed07215a8954d2989bc5d83658494ab2ba634af

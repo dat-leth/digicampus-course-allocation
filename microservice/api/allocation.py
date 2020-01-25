@@ -34,7 +34,7 @@ def get_allocation(allocation_id):
 
 
 def get_job(job_id):
-    job = rq.get_queue().fetch_job(job_id)
+    job = rq.get_queue('generate').fetch_job(job_id)
     if job is not None:
         if job.get_status() == "finished":
             return redirect(url_for(".api_allocation_get_allocation", allocation_id=job.result),

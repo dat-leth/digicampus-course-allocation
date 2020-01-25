@@ -53,6 +53,8 @@ def renew(name, expiry):
         token.expiration = datetime.datetime.utcnow() + datetime.timedelta(days=expiry)
         db.session.commit()
         print(f'Token {name!r} is renewed until {token.expiration}')
+    else:
+        print(f'Token {name!r} not found.')
 
 
 bp_cleanup = Blueprint('cleanup', __name__, cli_group=None)
