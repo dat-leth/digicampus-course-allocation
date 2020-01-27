@@ -132,7 +132,7 @@ WHERE rule_id = ?;");
             }
 
             $db = DBManager::get();
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem_ranking` (`user_id`, `group_id`, `item_id`, `priority`) VALUES (?, ?, ?, ?)
+            $stmt = $db->prepare("INSERT INTO `bps_bundleitem_ranking` (`user_id`, `group_id`, `item_id`, `priority`) VALUES (?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE priority=VALUES(priority), chdate=UNIX_TIMESTAMP()");
             foreach ($decoded_request['ranking'] as $i => $item_id) {
                 $stmt->execute(array($GLOBALS['user']->id, $decoded_request['group_id'], $item_id, $i));
@@ -140,10 +140,10 @@ WHERE rule_id = ?;");
             $item_ids = $decoded_request['ranking'];
             if (count($item_ids) > 0) {
                 $in = str_repeat('?,', count($item_ids) - 1) . '?';
-                $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_bundleitem_ranking` WHERE user_id = ? AND group_id = ? AND item_id NOT IN ($in);");
+                $delete_stmt = $db->prepare("DELETE FROM `bps_bundleitem_ranking` WHERE user_id = ? AND group_id = ? AND item_id NOT IN ($in);");
                 $delete_stmt->execute(array_merge([$GLOBALS['user']->id, $decoded_request['group_id']], $item_ids));
             } else {
-                $db->prepare("DELETE FROM `studip`.`bps_bundleitem_ranking` WHERE user_id = ? AND group_id = ?")
+                $db->prepare("DELETE FROM `bps_bundleitem_ranking` WHERE user_id = ? AND group_id = ?")
                     ->execute([$GLOBALS['user']->id, $decoded_request['group_id']]);
             }
 

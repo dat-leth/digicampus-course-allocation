@@ -67,7 +67,6 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
         }
         $json['students'] = array_values($rankings);
 
-        // TODO: calculate overlaps based on dates
         $overlapStmt = $db->prepare("
         SELECT DISTINCT bbc_base.item_id,
                 cycle_base.seminar_id,
@@ -122,7 +121,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
 
         if (!empty($rule) && !$rule->getDistributionDone()) {
             $db = DBManager::get();
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
+            $stmt = $db->prepare("INSERT INTO `bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
                 VALUES (?, ?, ?, ?, ?, FALSE) 
                 ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), seminar_id=VALUES(seminar_id), priority=VALUES(priority);");
 

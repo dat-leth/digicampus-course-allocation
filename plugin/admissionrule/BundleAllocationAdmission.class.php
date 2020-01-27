@@ -35,7 +35,7 @@ class BundleAllocationAdmission extends AdmissionRule
         parent::__construct($ruleId, $courseSetId);
         $this->default_message = _('Unter Berücksichtigung der abgegebenen Prioritäten werden ein oder mehrere Veranstaltungen überschneidungsfrei zugeteilt.' .
             'Falls innerhalb des Anmeldezeitraums wiederholt die Eingabemaske zur ' .
-            'Prioritätenerhebung nicht angezeigt wird, kontaktieren Sie die Lehrperson oder den Administrator.');
+            'Prioritätenerhebung nicht angezeigt wird, kontaktieren Sie die Lehrperson oder den Support.');
 
         if ($ruleId) {
             $this->load();
@@ -129,7 +129,6 @@ class BundleAllocationAdmission extends AdmissionRule
             WHERE `rule_id`=? LIMIT 1");
         $stmt->execute(array($this->id));
         if ($current = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->message = $current['message'];
             $this->distribution_time = $current['distribution_time'];
             $this->job_id = $current['job_id'];
             $this->distribution_done = $current['distribution_done'];
@@ -163,9 +162,9 @@ class BundleAllocationAdmission extends AdmissionRule
     {
         // Store data.
         $stmt = DBManager::get()->prepare("INSERT INTO `bpsadmissions`
-            (`rule_id`, `message`, `distribution_time`, `distribution_done`, `mkdate`, `chdate`)
-            VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
-            `message`=VALUES(`message`), `distribution_time`=VALUES(`distribution_time`), `distribution_done`=VALUES(`distribution_done`), `chdate`=VALUES(`chdate`)");
+            (`rule_id`, `distribution_time`, `distribution_done`, `mkdate`, `chdate`)
+            VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
+            `distribution_time`=VALUES(`distribution_time`), `distribution_done`=VALUES(`distribution_done`), `chdate`=VALUES(`chdate`)");
         $stmt->execute(array($this->id, $this->default_message, $this->distribution_time, $this->distribution_done, time(), time()));
         return $this;
     }

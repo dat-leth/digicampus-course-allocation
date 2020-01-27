@@ -1,5 +1,5 @@
 pluginclassname=BundleAllocationPlugin
-pluginname=BundleAllocation
-origin=dat.lethanh@student.uni-augsburg.de
-version=0.1
-studipMinVersion=4.1
+pluginname=Uni Augsburg Bundle Allocation Plugin
+origin=uaux
+version=2020.1
+studipMinVersion=4.2

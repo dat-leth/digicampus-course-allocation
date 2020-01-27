@@ -1,6 +1,6 @@
 // vue.config.js
 module.exports = {
-    publicPath: 'plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/views',
+    publicPath: 'plugins_packages/uaux/BundleAllocationPlugin/views',
     outputDir: '../views',
     assetsDir: '../assets/vue',
 

@@ -95,10 +95,10 @@ class ConfigController extends PluginController
 
             $group_ids = array_column($decoded_request, 'group_id');
             $in  = str_repeat('?,', count($group_ids) - 1) . '?';
-            $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_rankinggroup` WHERE group_id NOT IN ($in) AND rule_id = ?;");
+            $delete_stmt = $db->prepare("DELETE FROM `bps_rankinggroup` WHERE group_id NOT IN ($in) AND rule_id = ?;");
             $delete_stmt->execute(array_merge($group_ids, [$rule_id]));
             $stmt = $db->prepare(
-                "INSERT INTO `studip`.`bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, ?)
+                "INSERT INTO `bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rule_id`), `group_name` = VALUES(`group_name`), `min_amount_prios` = VALUES(`min_amount_prios`)"
             );
 
@@ -129,7 +129,7 @@ ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rul
     {
         $db = DBManager::get();
         if (Request::isPost()) {
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, 0)");
+            $stmt = $db->prepare("INSERT INTO `bps_rankinggroup` (`group_id`, `rule_id`, `group_name`, `min_amount_prios`) VALUES (?, ?, ?, 0)");
             $stmt->execute(array($group_id = uniqid('bps_rg_'), $rule_id, 'Neue Zuteilungsgruppe'));
             if ($stmt > 0) {
                 $this->set_content_type('application/json');
@@ -150,7 +150,7 @@ ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rul
     {
         $db = DBManager::get();
         if (Request::isDelete()) {
-            $stmt = $db->prepare("DELETE FROM `studip`.`bps_rankinggroup` WHERE `group_id` LIKE ? ESCAPE '#'");
+            $stmt = $db->prepare("DELETE FROM `bps_rankinggroup` WHERE `group_id` LIKE ? ESCAPE '#'");
             $stmt->execute(array($group_id));
             if ($stmt > 0) {
                 $this->set_content_type('application/json');
@@ -180,13 +180,13 @@ ON DUPLICATE KEY UPDATE `group_id` = VALUES(`group_id`), `rule_id` = VALUES(`rul
 
             $item_ids = array_column($decoded_request, 'item_id');
             $in  = str_repeat('?,', count($item_ids) - 1) . '?';
-            $delete_stmt = $db->prepare("DELETE FROM `studip`.`bps_bundleitem` WHERE group_id = ? AND item_id NOT IN ($in);");
+            $delete_stmt = $db->prepare("DELETE FROM `bps_bundleitem` WHERE group_id = ? AND item_id NOT IN ($in);");
             $delete_stmt->execute(array_merge([$group_id], $item_ids));
 
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (item_id, group_id) 
+            $stmt = $db->prepare("INSERT INTO `bps_bundleitem` (item_id, group_id) 
 VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(group_id);");
             $course_stmt = $db
-                ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
+                ->prepare("INSERT INTO `bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
 
 
             foreach ($decoded_request as $item) {
@@ -202,7 +202,7 @@ VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(g
                 }
 
                 $db
-                    ->prepare("DELETE FROM `studip`.`bps_bundleitem_course` WHERE `item_id` LIKE ? ESCAPE '#'")
+                    ->prepare("DELETE FROM `bps_bundleitem_course` WHERE `item_id` LIKE ? ESCAPE '#'")
                     ->execute(array($item_id));
                 foreach ($item['seminar_ids'] as $id) {
                     $course_stmt->execute(array($item_id, $id));
@@ -247,11 +247,11 @@ VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(g
                 throw new Trails_Exception(500, 'bad request, could not decode json');
             }
 
-            $stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem` (`item_id`, `group_id`) VALUES (?, ?)");
+            $stmt = $db->prepare("INSERT INTO `bps_bundleitem` (`item_id`, `group_id`) VALUES (?, ?)");
             $stmt->execute(array($item_id = uniqid('bps_bi_'), $group_id));
 
             $course_stmt = $db
-                ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
+                ->prepare("INSERT INTO `bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
             foreach ($decoded_request['seminar_ids'] as $id) {
                 $course_stmt->execute(array($item_id, $id));
                 if ($course_stmt <= 0) {
@@ -284,9 +284,9 @@ VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(g
             }
 
             $course_stmt = $db
-                ->prepare("INSERT INTO `studip`.`bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
+                ->prepare("INSERT INTO `bps_bundleitem_course` (`item_id`, `seminar_id`) VALUES (?, ?);");
             $db
-                ->prepare("DELETE FROM `studip`.`bps_bundleitem_course` WHERE `item_id` LIKE ? ESCAPE '#'")
+                ->prepare("DELETE FROM `bps_bundleitem_course` WHERE `item_id` LIKE ? ESCAPE '#'")
                 ->execute(array($item_id));
             foreach ($decoded_request['seminar_ids'] as $id) {
                 $course_stmt->execute(array($item_id, $id));
@@ -309,7 +309,7 @@ VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(g
     {
         $db = DBManager::get();
         if (Request::isDelete()) {
-            $stmt = $db->prepare("DELETE FROM `studip`.`bps_bundleitem` WHERE `item_id` LIKE ? ESCAPE '#'");
+            $stmt = $db->prepare("DELETE FROM `bps_bundleitem` WHERE `item_id` LIKE ? ESCAPE '#'");
             $stmt->execute(array($item_id));
             if ($stmt > 0) {
                 $this->set_content_type('application/json');
@@ -342,7 +342,7 @@ VALUES (?, ?) ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), group_id=VALUES(g
                 WHERE br.rule_id = ?;"
             );
             $delete_stmt->execute(array($rule_id));
-            $insert_stmt = $db->prepare("INSERT INTO `studip`.`bps_bundleitem_excluding` (`item_id`, `excl_item_id`) VALUES (?, ?)");
+            $insert_stmt = $db->prepare("INSERT INTO `bps_bundleitem_excluding` (`item_id`, `excl_item_id`) VALUES (?, ?)");
             foreach ($decoded_request as $i => $item) {
                 foreach ($item as $excl) {
                     $insert_stmt->execute(array($i, $excl));

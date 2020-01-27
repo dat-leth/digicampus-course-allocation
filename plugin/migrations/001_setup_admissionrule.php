@@ -9,19 +9,20 @@ class SetupAdmissionRule extends Migration
     {
         $db = DBManager::get();
         $db->exec("CREATE TABLE IF NOT EXISTS `bpsadmissions` (
-  `rule_id` varchar(32) NOT NULL,
-  `message` text NOT NULL,
-  `distribution_time` int(11) NOT NULL DEFAULT 0,
-  `job_id` varchar(36),
-  `distribution_done` boolean NOT NULL DEFAULT FALSE,
-  `mkdate` int(11) NOT NULL DEFAULT 0,
-  `chdate` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`rule_id`)
-)");
+          `rule_id` varchar(32) NOT NULL,
+          `distribution_time` int(11) NOT NULL DEFAULT 0,
+          `job_id` varchar(36),
+          `distribution_done` boolean NOT NULL DEFAULT FALSE,
+          `mkdate` int(11) NOT NULL DEFAULT 0,
+          `chdate` int(11) NOT NULL DEFAULT 0,
+          PRIMARY KEY (`rule_id`)
+        )");
 
-        $path = 'public/plugins_packages/dat.lethanh@student.uni-augsburg.de/BundleAllocationPlugin/admissionrule';
+        $path = 'public/plugins_packages/uaux/BundleAllocationPlugin/admissionrule';
         $mkdate = time();
-        $db->exec("INSERT INTO `admissionrules` (`id`, `ruletype`, `active`, `mkdate`, `path`) VALUES (NULL, 'BundleAllocationAdmission', '1', {$mkdate}, '{$path}');");
+        $db->exec("INSERT IGNORE INTO `admissionrules` (`id`, `ruletype`, `active`, `mkdate`, `path`) VALUES 
+            (NULL, 'BundleAllocationAdmission', '0', {$mkdate}, '{$path}');"
+        );
 
         SimpleORMap::expireTableScheme();
     }

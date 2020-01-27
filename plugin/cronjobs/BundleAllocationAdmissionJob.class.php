@@ -115,7 +115,7 @@ class BundleAllocationAdmissionJob extends CronJob
         $response = $client->request('GET', $locationUrl);
         $data = json_decode($response->getBody());
         $db = DBManager::get();
-        $stmt = $db->prepare("INSERT INTO `studip`.`bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
+        $stmt = $db->prepare("INSERT INTO `bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
                 VALUES (?, ?, ?, ?, ?, FALSE) 
                 ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), seminar_id=VALUES(seminar_id), priority=VALUES(priority);");
         foreach ($data as $alloc) {
