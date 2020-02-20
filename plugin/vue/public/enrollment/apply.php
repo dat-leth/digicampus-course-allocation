@@ -1,5 +1,5 @@
 <script>
-    const BUNDLEALLOCATION = {
+    var BUNDLEALLOCATION = {
         distribution_time: <?= $distribution_time ?>,
         ranking_group: <?= json_encode($ranking_group) ?>,
         courses: <?= json_encode($courses) ?>,

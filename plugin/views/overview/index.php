@@ -33,7 +33,9 @@
                                 <td title="<?= $group['group_name'] ?>" rowspan="<?= count($item['courses']) ?>"
                                     class="gruppe<?= array_search($group['group_id'], array_keys($set['groups'])) % 9; ?>"></td>
                             <? endif; ?>
-                            <td><a href="#"><?= $course['seminar_name'] ?></a></td>
+                            <td>
+                                <a href="/dispatch.php/course/details/?sem_id=<?= $course['seminar_id'] ?>&send_from_search_page=dispatch.php%2Fmy_courses%2Findex&send_from_search=TRUE"><?= $course['seminar_name'] ?></a>
+                            </td>
                             <td>
                                 <a data-dialog="size=auto"
                                    href="/dispatch.php/course/details/index/<?= $course['seminar_id'] ?>">
@@ -43,7 +45,8 @@
                                          class="icon-role-inactive icon-shape-info-circle" width="20" height="20"> </a>
                             </td>
                             <? if (array_search($course['seminar_id'], array_keys($item['courses'])) == 0): ?>
-                                <td rowspan="<?= count($item['courses']) ?>" <? if (count($item['courses']) > 1): ?>style="border-left: 3px solid #e7ebf1"<? endif; ?>>
+                                <td rowspan="<?= count($item['courses']) ?>"
+                                    <? if (count($item['courses']) > 1): ?>style="border-left: 3px solid #e7ebf1"<? endif; ?>>
                                     <?= $item['priority'] + 1 ?>
                                 </td>
                                 <td rowspan="<?= count($item['courses']) ?>" style="text-align: right">

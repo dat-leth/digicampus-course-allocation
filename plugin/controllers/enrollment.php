@@ -132,10 +132,10 @@ WHERE rule_id = ?;");
             }
 
             $db = DBManager::get();
-            $stmt = $db->prepare("INSERT INTO `bps_bundleitem_ranking` (`user_id`, `group_id`, `item_id`, `priority`) VALUES (?, ?, ?, ?)
+            $stmt = $db->prepare("INSERT INTO `bps_bundleitem_ranking` (`user_id`, `group_id`, `item_id`, `priority`, `mkdate`, `chdate`) VALUES (?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE priority=VALUES(priority), chdate=UNIX_TIMESTAMP()");
             foreach ($decoded_request['ranking'] as $i => $item_id) {
-                $stmt->execute(array($GLOBALS['user']->id, $decoded_request['group_id'], $item_id, $i));
+                $stmt->execute(array($GLOBALS['user']->id, $decoded_request['group_id'], $item_id, $i, time(), time()));
             }
             $item_ids = $decoded_request['ranking'];
             if (count($item_ids) > 0) {

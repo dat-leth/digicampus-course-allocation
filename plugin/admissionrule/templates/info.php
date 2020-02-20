@@ -15,11 +15,10 @@
 Es wird überschneidungsfrei jeweils eine (1) Veranstaltung pro Zuteilungsgruppe zugeteilt, wenn
 Prioritäten dafür abgegeben wurden. Überschneidungen zu Veranstaltungen außerhalb dieses Anmeldesets werden
 <strong>NICHT</strong> berücksichtigt!
-<? if (!empty($rankinggroups)) : ?>
+<? if ($rankinggroups = $rule->getRankingGroups()) : ?>
     <ul>
         <? foreach ($rankinggroups as $group): ?>
-            <li><?= $group['group_name'] ?> (Mindestanzahl abzugebener Prioritäten: <?= $group['min_amount_prios'] ?>)
-            </li>
+            <li><?= $group->getName() ?> (Mindestanzahl abzugebener Prioritäten: <?= $group->getMinAmountPrios() ?>)</li>
         <? endforeach; ?>
     </ul>
 <? endif ?>

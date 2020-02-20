@@ -34,7 +34,7 @@ class SetupCronjob extends Migration
      */
     function down()
     {
-        DBManager::get()->execute("DELETE FROM `config` WHERE `field` = 'BUNDLEALLOCATION_SERVER_ENDPOINT';");
+        DBManager::get()->execute("DELETE FROM `config` WHERE `field` IN ('BUNDLEALLOCATION_SERVER_ENDPOINT', 'BUNDLEALLOCATION_SERVER_BEARER_TOKEN');");
         BundleAllocationAdmissionJob::unregister();
     }
 

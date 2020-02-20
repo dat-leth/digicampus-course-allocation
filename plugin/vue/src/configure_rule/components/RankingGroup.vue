@@ -3,7 +3,7 @@
         <header>
             <h1>
                 <a href="#">
-                    {{ group.group_name }}
+                    {{ group.groupName }}
                 </a>
             </h1>
             <nav>
@@ -16,23 +16,30 @@
             </nav>
         </header>
         <section>
-            <label for="name" class="required">Name</label>
-            <div class="length-hint-wrapper" style="width: 666.6px;">
-                <div class="length-hint" style="display: none;">
-                    Zeichen verbleibend: <span class="length-hint-counter">255</span>
+            <label for="name">
+                <span class="required">Name</span>
+                <div class="length-hint-wrapper" style="width: 667px;">
+                    <div class="length-hint" style="display: none;">
+                        Zeichen verbleibend: <span class="length-hint-counter">255</span>
+                    </div>
+                    <input type="text" id="name" size="75" maxlength="255" required aria-required="true"
+                           v-model="group.groupName">
                 </div>
-                <input type="text" id="name" size="75" maxlength="255" required aria-required="true"
-                       :value="group.group_name" @input="updateGroupName">
-            </div>
-            <label class="required">Minimale Anzahl einzureichende Prioritäten</label>
-            <input type="number" min="0" :max="bundleItems.length" :value="group.min_amount_prios" @input="updateMinAmountPrios"/>
-            <label class="required">Zugeordnete Veranstaltungen</label>
-            <table class="default">
+            </label>
+            <label for="min_amount_prios">
+                <span class="required">Minimale Anzahl einzureichende Prioritäten</span>
+                <input type="number" id="min_amount_prios" min="0" :max="Object.keys(group.bundleItems).length"
+                       v-model="group.minAmountPrios"/>
+            </label>
+            <label for="assigned">
+                <span class="required">Zugeordnete Veranstaltungen</span>
+            </label>
+            <table id="assigned" class="labeled default">
                 <thead>
                 <tr>
                     <th></th>
                     <th>Veranstaltung</th>
-                    <th>Regelmäßige Termine</th>
+                    <th>Zeit/Veranstaltungsort</th>
                     <th>max. Teilnehmendenanzahl</th>
                 </tr>
                 </thead>
@@ -43,15 +50,15 @@
                     <col/>
                 </colgroup>
                 <tbody>
-                <tr v-if="bundleItems.length === 0">
+                <tr v-if="Object.keys(group.bundleItems).length === 0">
                     <td></td>
                     <td colspan="3"><em>keine zugeordneten Veranstaltungen</em></td>
                 </tr>
-                <template v-for="(bundle) in bundleItems">
-                    <tr v-for="(course, j) in courseDetails(bundle.seminar_ids)" :key="course.seminar_id">
-                        <td :rowspan="bundle.seminar_ids.length" v-if="j === 0"
-                            :style="{ borderRight: (bundle.seminar_ids.length > 1) ? '3px solid #e7ebf1' : '3px none'}">
-                            <input type="checkbox" v-model="checkboxed[bundle.item_id]"/>
+                <template v-for="[item_id, bundle] in sortedBundleItems">
+                    <tr v-for="(course, i) in bundleCourseDetails(bundle.courses)" :key="course.course_id">
+                        <td :rowspan="Object.keys(bundle.courses).length" v-if="i === 0"
+                            :style="mergedIndicator(bundle)">
+                            <input type="checkbox" v-model="checkboxed[item_id]"/>
                         </td>
                         <td>{{ course.name }}</td>
                         <td><span v-html="course.times_rooms"></span></td>
@@ -73,13 +80,15 @@
                 </tr>
                 </tfoot>
             </table>
-            <label><strong>Keiner Zuteilungsgruppe zugeordnet</strong></label>
-            <table class="default">
+            <label for="non_assigned">
+                Keiner Zuteilungsgruppe zugeordnet
+            </label>
+            <table id="non_assigned" class="labeled default">
                 <thead>
                 <tr>
                     <th></th>
                     <th>Veranstaltung</th>
-                    <th>Regelmäßige Termine</th>
+                    <th>Zeit/Veranstaltungsort</th>
                     <th>max. Teilnehmendenanzahl</th>
                 </tr>
                 </thead>
@@ -90,13 +99,13 @@
                     <col/>
                 </colgroup>
                 <tbody>
-                <tr v-if="notAssignedCourses.length === 0">
+                <tr v-if="notAssignedCourseDetails.length === 0">
                     <td></td>
                     <td colspan="3"><em>keine zuzuordnenden Veranstaltungen</em></td>
                 </tr>
-                <tr v-for="course in notAssignedCourses" :key="course.seminar_id">
+                <tr v-for="course in notAssignedCourseDetails" :key="course.course_id">
                     <td>
-                        <button class="add-button" v-on:click.prevent="addCourseToGroup(course.seminar_id)">
+                        <button class="add-button" @click.prevent="addCourseToGroup(course.course_id)">
                             <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
                                  shape-rendering="geometricPrecision" fill="#24437c">
                                 <path d="M8 1.001a7 7 0 1 0 .003 14 7 7 0 0 0-.003-14zm4.016 8.024H9.023l.002 2.943-2.048.001.001-2.943H3.984l-.001-2.05h2.994V4l2.047-.001v2.976l2.993.001-.001 2.049z"/>
@@ -110,86 +119,88 @@
                 </tbody>
             </table>
         </section>
+        <input type="hidden" :name="`groups[${id}]`" :value="JSON.stringify(group)"/>
     </article>
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+
+    import {mapGetters, mapState} from "vuex";
 
     export default {
         name: "RankingGroup",
         data: () => {
             return {
                 checkboxed: {},
-                action: ''
+                action: '',
             }
         },
-        props: ['index', 'group'],
+        props: ['id', 'group'],
         computed: {
-            ...mapGetters(["courses"]),
-            bundleItems() {
-                let items = this.$store.getters.bundleItems.filter(bundleItem => bundleItem.group_id === this.group.group_id);
-                items.forEach(item => {
-                    item.seminar_ids.sort((a, b) => {
-                        let courseA = this.courses.find(course => course.seminar_id === a);
-                        let courseB = this.courses.find(course => course.seminar_id === b);
-                        return courseA.name.localeCompare(courseB.name)
-                    })
-                });
-                items.sort((a, b) => {
-                    let courseA = this.courses.find(course => course.seminar_id === a.seminar_ids[0]);
-                    let courseB = this.courses.find(course => course.seminar_id === b.seminar_ids[0]);
-                    return courseA.name.localeCompare(courseB.name)
-                });
-                return items
-            },
-            notAssignedCourses() {
-                let assignedSeminarIds = [];
-                this.$store.getters.bundleItems.forEach(item => {
-                    assignedSeminarIds.push(...item.seminar_ids)
-                });
-                return this.courses.filter(course => !assignedSeminarIds.includes(course.seminar_id))
-            },
+            ...mapState(['course_infos']),
+            ...mapGetters(['notAssignedCourseDetails']),
             selectedBundleItems() {
                 return Object.keys(this.checkboxed).filter(itemId => this.checkboxed[itemId] === true)
             },
             splittableBundleItem() {
                 if (this.selectedBundleItems.length === 1) {
-                    let bundleItem = this.bundleItems.find(item => item.item_id === this.selectedBundleItems[0]);
-                    return bundleItem.seminar_ids.length > 1;
+                    return Object.keys(this.group.bundleItems[this.selectedBundleItems[0]].courses).length > 1;
                 }
                 return false;
-            }
+            },
+            sortedBundleItems() {
+                let bundleItems = {...this.group.bundleItems};
+                let sortable = false;
+                for (const item_id in bundleItems) {
+                    if (this.course_infos[Object.keys(bundleItems[item_id].courses)[0]] !== undefined) {
+                        bundleItems[item_id].sortingName = this.course_infos[Object.keys(bundleItems[item_id].courses)[0]].name;
+                        sortable = true;
+                    } else {
+                        delete bundleItems[item_id];
+                    }
+                }
+                if (sortable) {
+                    return Object.entries(bundleItems).sort(([, itemA], [, itemB]) => {
+                        return itemA.sortingName.localeCompare(itemB.sortingName);
+                    })
+                } else {
+                    return [];
+                }
+            },
         },
         methods: {
-            deleteGroup: function () {
-                this.$store.dispatch("removeRankingGroup", this.index)
-            },
-            courseDetails: function (seminarIds) {
-                return seminarIds.map(id => this.courses.find(course => course.seminar_id === id))
-            },
-            updateGroupName: function (event) {
-                this.$store.dispatch("setGroupName", {id: this.group.group_id, name: event.target.value})
-            },
-            updateMinAmountPrios: function (event) {
-                this.$store.dispatch("setGroupMinAmountPrio", {id: this.group.group_id, amount: parseFloat(event.target.value)})
-            },
-            addCourseToGroup: function (seminarId) {
-                this.$store.dispatch("addBundleItem", {groupId: this.group.group_id, seminarIds: [seminarId]})
-            },
-            delegateAction: function () {
-                if (this.action === 'delete') {
-                    this.selectedBundleItems.forEach(itemId => this.$store.dispatch("deleteBundleItem", itemId))
-                } else if (this.action === 'merge') {
-                    this.$store.dispatch("mergeBundleItems", this.selectedBundleItems)
-                } else if (this.action === 'split') {
-                    this.$store.dispatch("splitBundleItems", {
-                        groupId: this.group.group_id,
-                        itemId: this.selectedBundleItems[0]
-                    })
+            mergedIndicator(bundle) {
+                if (Object.keys(bundle.courses).length > 1) {
+                    return {borderRight: '3px solid #e7ebf1'};
                 }
-                this.checkboxed = {};
+                return {};
+            },
+            bundleCourseDetails(courses) {
+                let details = [];
+                for (const course_id in courses) {
+                    if (courses.hasOwnProperty(course_id) && this.course_infos.hasOwnProperty(course_id)) {
+                        details.push({...this.course_infos[course_id]})
+                    }
+                }
+                details.sort((a, b) => a.name.localeCompare(b.name));
+                return details;
+            },
+            deleteGroup() {
+                this.$store.dispatch('deleteGroup', {group_id: this.id})
+            },
+            addCourseToGroup(course_id) {
+                this.$store.dispatch('addBundleItem', {group_id: this.id, course_ids: [course_id]})
+            },
+            delegateAction() {
+                if (this.action === 'delete') {
+                    this.$store.dispatch('deleteBundleItems', {group_id: this.id, item_ids: this.selectedBundleItems})
+                } else if (this.action === 'merge') {
+                    this.$store.dispatch('mergeBundleItems', {group_id: this.id, item_ids: this.selectedBundleItems})
+                } else if (this.action === 'split') {
+                    this.$store.dispatch('splitBundleItem', {group_id: this.id, item_id: this.selectedBundleItems[0]})
+                }
                 this.action = '';
+                this.checkboxed = {};
             }
         }
     }
@@ -220,5 +231,10 @@
 
     select.select-action {
         width: 200px;
+    }
+
+    section > table.labeled {
+        margin-top: -1ex;
+        margin-bottom: 1.5ex;
     }
 </style>

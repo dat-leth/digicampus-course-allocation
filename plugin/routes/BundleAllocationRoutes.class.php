@@ -8,7 +8,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
     }
 
     /**
-     * GET: returns JSON with student preferences, list of bundle items, associated courses and exclusion map
+     * Returns JSON with student preferences, list of bundle items, associated courses and exclusion map
      *
      * @get /bundleallocation/courseset/:setId/preferences
      */
@@ -110,7 +110,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
     }
 
     /**
-     * POST: callback hook, receive JSON with allocations (student, course and priority of course)
+     * Callback hook, receive JSON with allocations (student to course and assigned priorities)
      *
      * @post /bundleallocation/courseset/:setId/allocations
      */
@@ -144,6 +144,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
         $this->error(400, 'Could not save allocations');
         return [];
     }
+
 
     public function after()
     {

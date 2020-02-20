@@ -1,34 +1,28 @@
 <?php
 
-/**
- * BundleAllocationAdmission.class.php
- *
- * Represents a rule for completely locking courses for admission.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * @author      Thomas Hackl <thomas.hackl@uni-passau.de>
- * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL version 2
- * @category    Stud.IP
- */
+require_once __DIR__ . '/../classes/RankingGroup.class.php';
+require_once __DIR__ . '/../classes/BundleItem.class.php';
 
-class BundleAllocationAdmission extends AdmissionRule
+use BundleAllocation\RankingGroup;
+use BundleAllocation\BundleItem;
+
+class BundleAllocationAdmission extends \AdmissionRule
 {
     // --- ATTRIBUTES ---
-    public $distribution_time = 0;
-    public $job_id = null;
-    public $distribution_done = false;
-    public $minimum_timespan_to_distribution_time = 120;
+    public $distributionTime = 0;
+    public $jobId = '';
+    public $distributionDone = false;
+    public $minTimespanToDistrTime = 120;
+    public $rankingGroups = [];
+    public $courseCapacity;
 
     // --- OPERATIONS ---
 
     /**
      * Standard constructor.
      *
-     * @param String ruleId
+     * @param string $ruleId
+     * @param string $courseSetId
      */
     public function __construct($ruleId = '', $courseSetId = '')
     {
@@ -41,6 +35,7 @@ class BundleAllocationAdmission extends AdmissionRule
             $this->load();
         } else {
             $this->id = $this->generateId('bpsadmissions');
+            $this->rankingGroups = [];
         }
     }
 
@@ -81,7 +76,7 @@ class BundleAllocationAdmission extends AdmissionRule
      */
     public function getDistributionTime()
     {
-        return $this->distribution_time;
+        return $this->distributionTime;
     }
 
     /**
@@ -89,18 +84,29 @@ class BundleAllocationAdmission extends AdmissionRule
      */
     public function setDistributionTime($time)
     {
-        $this->distribution_time = $time;
+        $this->distributionTime = $time;
         return $this;
     }
 
     public function getDistributionDone()
     {
-        return $this->distribution_done;
+        return $this->distributionDone;
     }
 
     public function setDistributionDone($done)
     {
-        $this->distribution_done = $done;
+        $this->distributionDone = $done;
+        return $this;
+    }
+
+    public function getRankingGroups()
+    {
+        return $this->rankingGroups;
+    }
+
+    public function addRankingGroup($group)
+    {
+        $this->rankingGroups[$group->getId()] = $group;
         return $this;
     }
 
@@ -112,11 +118,22 @@ class BundleAllocationAdmission extends AdmissionRule
      */
     public function getTemplate()
     {
-        $factory = new Flexi_TemplateFactory(dirname(__FILE__) . '/../views/configurerule/');
+        $factory = new Flexi_TemplateFactory(dirname(__FILE__) . '/../views/configure_rule/');
+
         // Now open specific template for this rule and insert base template. 
         $tpl = $factory->open('configure');
-        $tpl->set_attribute('rule', $this);
-        $tpl->set_attribute('courseset_id', $this->courseSetId);
+
+        $data = [];
+        $data['rule_id'] = $this->getId();
+        $data['dist_date'] = $this->getDistributionTime() ? date('d.m.Y', $this->getDistributionTime()) : '';
+        $data['dist_time'] = $this->getDistributionTime() ? date('H:i', $this->getDistributionTime()) : '';
+        $data['groups'] = new ArrayObject();
+        foreach ($this->getRankingGroups() as $id => $group) {
+            $data['groups'][$id] = ObjectBuilder::export($group);
+        }
+        $data['course_capacity'] = $this->courseCapacity;
+
+        $tpl->set_attribute('data', $data);
         return $tpl->render();
     }
 
@@ -125,18 +142,21 @@ class BundleAllocationAdmission extends AdmissionRule
      */
     public function load()
     {
-        $stmt = DBManager::get()->prepare("SELECT * FROM `bpsadmissions`
+        $db = DBManager::get();
+        $stmt = $db->prepare("SELECT * FROM `bpsadmissions`
             WHERE `rule_id`=? LIMIT 1");
         $stmt->execute(array($this->id));
         if ($current = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->distribution_time = $current['distribution_time'];
-            $this->job_id = $current['job_id'];
-            $this->distribution_done = $current['distribution_done'];
-        }
-        if (empty($this->courseSetId)) {
-            $result = DBManager::get()->fetchOne("SELECT `set_id` FROM `courseset_rule` WHERE `rule_id`=?",
-                array($this->getId()));
-            $this->courseSetId = $result['set_id'];
+            $this->distributionTime = $current['distribution_time'];
+            $this->jobId = $current['job_id'];
+            $this->distributionDone = $current['distribution_done'];
+
+            $rankingGroupsStmt = $db->prepare("SELECT `group_id` FROM `bps_rankinggroup` WHERE `rule_id` = ?");
+            $rankingGroupsStmt->execute([$this->id]);
+            while ($groupsResult = $rankingGroupsStmt->fetch(PDO::FETCH_ASSOC)) {
+                $rankingGroup = new \BundleAllocation\RankingGroup($groupsResult['group_id']);
+                $this->rankingGroups[$rankingGroup->getId()] = $rankingGroup;
+            }
         }
     }
 
@@ -160,12 +180,27 @@ class BundleAllocationAdmission extends AdmissionRule
      */
     public function store()
     {
-        // Store data.
-        $stmt = DBManager::get()->prepare("INSERT INTO `bpsadmissions`
+        $db = DBManager::get();
+        $stmt = $db->prepare("INSERT INTO `bpsadmissions`
             (`rule_id`, `distribution_time`, `distribution_done`, `mkdate`, `chdate`)
             VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
             `distribution_time`=VALUES(`distribution_time`), `distribution_done`=VALUES(`distribution_done`), `chdate`=VALUES(`chdate`)");
-        $stmt->execute(array($this->id, $this->default_message, $this->distribution_time, $this->distribution_done, time(), time()));
+        $stmt->execute(array($this->id, $this->distributionTime, $this->distributionDone, time(), time()));
+
+        $group_ids = implode("', '", array_keys($this->rankingGroups));
+        $cleanupStmt = $db->prepare("DELETE FROM `bps_rankinggroup` WHERE `rule_id` = ? AND `group_id` NOT IN ('{$group_ids}');");
+        $cleanupStmt->execute([$this->id]);
+
+        foreach ($this->rankingGroups as $group) {
+            $group->store();
+        }
+
+        foreach ($this->courseCapacity as $id => $capacity) {
+            $seminar = Seminar::GetInstance($id);
+            $seminar->admission_turnout = $capacity;
+            $seminar->store();
+        }
+
         return $this;
     }
 
@@ -177,18 +212,10 @@ class BundleAllocationAdmission extends AdmissionRule
     public function toString()
     {
         $factory = new Flexi_TemplateFactory(dirname(__FILE__) . '/templates/');
-        $db = DBManager::get();
 
         $tpl = $factory->open('info');
         $tpl->set_attribute('rule', $this);
         $tpl->set_attribute('coursesetId', $this->courseSetId);
-
-        $stmt = $db->prepare("SELECT * FROM `bps_rankinggroup` WHERE rule_id=?");
-        $stmt->execute(array($this->id));
-        if ($result = $stmt->fetchAll(PDO::FETCH_ASSOC)) {
-            $tpl->set_attribute('rankinggroups', $result);
-        }
-
         return $tpl->render();
     }
 
@@ -206,6 +233,21 @@ class BundleAllocationAdmission extends AdmissionRule
             $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
             $this->setDistributionTime($ddate);
         }
+        $this->courseCapacity = $data['course_capacity'];
+
+        $this->rankingGroups = [];
+        if (isset($data['groups'])) {
+            foreach ($data['groups'] as $serialized_group) {
+                $group = ObjectBuilder::build($serialized_group, 'BundleAllocation\RankingGroup');
+                // Silently drop bundle items with courses not in courseset or empty bundle items
+                foreach ($group->getBundleItems() as $item) {
+                    if (array_diff(array_keys($item->getCourses()), array_keys($data['course_capacity'])) || empty($item->getCourses())) {
+                        $group->removeBundleItemById($item->getId());
+                    }
+                }
+                $this->addRankingGroup($group);
+            }
+        }
         return $this;
     }
 
@@ -217,15 +259,50 @@ class BundleAllocationAdmission extends AdmissionRule
     public function validate($data)
     {
         $errors = parent::validate($data);
+        // Any courses in this courseset?
+        if (!isset($data['course_capacity'])) {
+            $errors[] = _('Dieses Anmeldeset enthält keine Veranstaltungen.');
+        }
+
+        // Validate distribution time, has to be atleast in minTimespan minutes
         if (!$data['distributiontime']) {
             $data['distributiontime'] = '23:59';
         }
         $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
-        if (!$data['distributiondate'] || $ddate < (time() + $this->minimum_timespan_to_distribution_time*60)) {
-            $errors[] = sprintf(_('Bitte geben Sie für die Platzverteilung ein Datum an, das weiter in der Zukunft liegt. Das frühestmögliche Datum ist %s.'), strftime('%x %R', time() + $this->minimum_timespan_to_distribution_time*60));
+        if (!$data['distributiondate'] || $ddate < (time() + $this->minTimespanToDistrTime * 60)) {
+            $errors[] = sprintf(_('Bitte geben Sie für die Platzverteilung ein Datum an, das weiter in der Zukunft liegt. Das frühestmögliche Datum ist %s.'), strftime('%x %R', time() + $this->minTimespanToDistrTime * 60));
         }
+
+        // Atleast one ranking group required
+        if (!isset($data['groups'])) {
+            $errors[] = _('Bitte legen Sie mindestens eine Zuteilungsgruppe an.');
+        } else {
+            $rankingGroups = [];
+            $assignedCourses = [];
+            foreach ($data['groups'] as $serialized_group) {
+                $group = ObjectBuilder::build($serialized_group, 'BundleAllocation\RankingGroup');
+                $rankingGroups[$group->getId()] = $group;
+
+                foreach ($group->getBundleItems() as $item) {
+                    $assignedCourses = array_merge($assignedCourses, array_keys($item->getCourses()));
+                }
+
+                // Cannot be empty ranking group.
+                if (empty(array_keys($group->getBundleItems()))) {
+                    $errors[] = sprintf(_('"%s" wurde noch keine Veranstaltungen zugeordnet.'), $group->getName());
+                }
+            }
+
+            // All courses in courseset have to be assigned to a ranking group.
+            if ($data['course_capacity'] !== null) {
+                if (!empty(array_diff(array_keys($data['course_capacity']), $assignedCourses))) {
+                    $errors[] = _('Es gibt noch Veranstaltungen, die keiner Zuteilungsgruppe zugeordnet sind.');
+                }
+            }
+        }
+
         return $errors;
     }
-
+    // TODO: cloning logic
 } /* end of class BundleAllocationAdmission */
 

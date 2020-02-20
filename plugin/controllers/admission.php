@@ -123,7 +123,7 @@ class AdmissionController extends PluginController
             $courses[$id]['seminar_id'] = $id;
             $courses[$id]['name'] = $sem->getName();
             $courses[$id]['formatted_date'] = $sem->getDatesTemplate('dates/seminar_html', ['show_room' => true]);
-            $courses[$id]['capacity'] = Course::find($id)->admission_turnout;
+            $courses[$id]['capacity'] = $sem->admission_turnout;
         }
 
         $rankings = [];

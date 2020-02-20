@@ -1,10 +1,11 @@
 <?php
 
+require_once __DIR__ . '/../composer_modules/autoload.php';
+
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use function GuzzleHttp\Promise\all;
 
-require_once __DIR__ . '/../composer_modules/autoload.php';
 
 class BundleAllocationAdmissionJob extends CronJob
 {
@@ -27,7 +28,6 @@ class BundleAllocationAdmissionJob extends CronJob
 
     /**
      * Execute the cronjob.
-     * TODO: Add secure OAuth connection to server
      *
      * @param mixed $last_result What the last execution of this cronjob
      *                           returned.
@@ -55,7 +55,8 @@ class BundleAllocationAdmissionJob extends CronJob
             if (empty($set['job_id'])) {
                 $new_alloc_requests[$set['set_id']] = $client->requestAsync('POST', 'allocation', [
                     'headers' => [
-                        'Content-Type' => 'application/json'
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer ' . Config::get()->BUNDLEALLOCATION_SERVER_BEARER_TOKEN,
                     ],
                     'body' => json_encode([
                         'callbackUrl' => URLHelper::getURL('api.php/bundleallocation/courseset/' . $set['set_id'] . '/allocations'),
@@ -63,7 +64,8 @@ class BundleAllocationAdmissionJob extends CronJob
                     ], JSON_UNESCAPED_SLASHES)
                 ]);
             } else if (!empty($set['job_id'])) {
-                $get_status_requests[$set['set_id']] = $client->requestAsync('GET', 'job/' . $set['job_id']);
+                $get_status_requests[$set['set_id']] = $client->requestAsync('GET', 'job/' . $set['job_id'],
+                    ['headers' => ['Authorization' => 'Bearer ' . Config::get()->BUNDLEALLOCATION_SERVER_BEARER_TOKEN]]);
             }
         }
         $promises = GuzzleHttp\Promise\settle($new_alloc_requests)->wait();

@@ -87,10 +87,22 @@ def iterative_rounding(
 
     while not np.array_equal(result, result.astype(bool)):
         # Again fix values of variables where 0 or 1
-        lower_bounds = np.where(result < 1, 0, 1)
-        upper_bounds = np.where(result > 0, 1, 0)
-        model.setAttr("LB", model.getVars(), lower_bounds)
-        model.setAttr("UB", model.getVars(), upper_bounds)
+        # lower_bounds = np.where(result < 1, 0, 1)
+        # upper_bounds = np.where(result > 0, 1, 0)
+        # model.setAttr("LB", model.getVars(), lower_bounds)
+        # model.setAttr("UB", model.getVars(), upper_bounds)
+
+        for s, b in x:
+            if x[s, b].X < 1:
+                x[s, b].LB = 0
+            else:
+                x[s, b].LB = 1
+
+            if x[s, b].X > 0:
+                x[s, b].UB = 1
+            else:
+                x[s, b].UB = 0
+
 
         # Update supply constraints
         # Adjust RHS (remaining capacity) of bundle items

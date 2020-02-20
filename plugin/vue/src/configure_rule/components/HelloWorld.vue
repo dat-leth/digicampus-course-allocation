@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }} {{ ruleId }} {{ step }}</h1>
+    <h1>{{ msg }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -27,39 +27,24 @@
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
     </ul>
-    <button class="button" v-on:click.prevent="prevStep" v-if="this.$store.state.step > 0">Zurück</button>
-    <button class="button" v-on:click.prevent="nextStep"
-            v-if="this.$store.state.components.length - 1 > this.$store.state.step">
-      Weiter
-    </button>
+    <input type="hidden" v-for="group in rule.rankingGroups" :key="group" name="group[]" :value="group">
   </div>
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
   },
-  created() {
-    // eslint-disable-next-line
-    this.ruleId = BUNDLEALLOCATION.rule_id
-  },
   computed: {
-    step() {
-      return this.$store.state.components[this.$store.state.step]
-    }
-  },
-  methods: {
-    nextStep: function () {
-      this.$store.dispatch("nextStep")
-    },
-    prevStep: function () {
-      this.$store.dispatch("prevStep")
-    }
-  },
+    ...mapState(['rule'])
+  }
 }
 </script>
 
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 </style>
