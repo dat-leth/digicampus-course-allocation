@@ -135,7 +135,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
             $rule->store();
             $msg_title = sprintf('Anmeldeset %s: Verteilergebnisse stehen zur Verfügung', $set->getName());
             $msg_body = sprintf('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die Zuteilungen müssen vorher bestätigt werden.',
-                $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/applications/' . $setId));
+                $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getURL('BundleAllocationPlugin', [], 'admission/applications/' . $setId));
             messaging::sendSystemMessage($set->getUserId(), $msg_title, $msg_body);
 
             return ['status' => '200', 'message' => 'Successfully saved allocations.', 'done' => $rule->getDistributionDone()];

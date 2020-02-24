@@ -41,11 +41,12 @@ class SetupBpsDatabase extends Migration
         );");
         $db->exec("CREATE TABLE IF NOT EXISTS bps_prelim_alloc (
             user_id varchar(32) NOT NULL,
+            group_id varchar(32) NOT NULL,
             item_id varchar(32) NOT NULL,
             seminar_id varchar(32) NOT NULL,
             priority int NOT NULL,
             waitlist bool NOT NULL,
-            PRIMARY KEY (user_id, item_id, seminar_id),
+            PRIMARY KEY (user_id, group_id, item_id, seminar_id),
             FOREIGN KEY (item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE
         )");
         SimpleORMap::expireTableScheme();
@@ -57,10 +58,10 @@ class SetupBpsDatabase extends Migration
     function down()
     {
         $db = DBManager::get();
-        $db->exec("DROP TABLE `bps_rankinggroup`");
         $db->exec("DROP TABLE `bps_bundleitem`");
         $db->exec("DROP TABLE `bps_bundleitem_course`");
         $db->exec("DROP TABLE `bps_bundleitem_ranking`");
+        $db->exec("DROP TABLE `bps_rankinggroup`");
         $db->exec("DROP TABLE `bps_prelim_alloc`");
         SimpleORMap::expireTableScheme();
     }

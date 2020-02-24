@@ -17,8 +17,8 @@ def generate(student_preferences, callback_url):
     schema = RootSchema()
 
     # Request student preferences resource from remote server
-    auth_header = {'PRIVATE-TOKEN': os.getenv('DC_PRIVATE_TOKEN')}
-    res = requests.get(student_preferences, headers=auth_header)
+    headers = {'Accept': 'application/json', 'PRIVATE-TOKEN': os.getenv('DC_PRIVATE_TOKEN')}
+    res = requests.get(student_preferences, headers=headers)
     res.raise_for_status()
 
     # Deserialize data
@@ -54,9 +54,9 @@ def generate(student_preferences, callback_url):
                 bundle_item_alloc[item].append(student)
 
     # Save to database
-    allocation_id = uuid.uuid4()
+    allocation_id = str(uuid.uuid4())
     while Allocation.query.filter(Allocation.alloc_id == allocation_id).first() is not None:
-        allocation_id = uuid.uuid4()
+        allocation_id = str(uuid.uuid4())
     allocations = []
     for item in bundle_item_alloc:
         item.distribute_to_courses(bundle_item_alloc[item])
@@ -78,5 +78,6 @@ def generate(student_preferences, callback_url):
 
 @rq.job('callback')
 def callback(url, data):
-    r = requests.post(url=url, data=data)
+    headers = {'PRIVATE-TOKEN': os.getenv('DC_PRIVATE_TOKEN')}
+    r = requests.post(url=url, json=data, headers=headers)
     r.raise_for_status()
