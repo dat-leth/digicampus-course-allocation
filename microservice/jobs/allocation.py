@@ -72,7 +72,7 @@ def generate(student_preferences, callback_url):
     db.session.commit()
 
     # Callback to remote server to announce that we're done!
-    callback.queue(url=callback_url, data=AllocationSchema(many=True).dumps(allocations))
+    callback.queue(url=callback_url, data=AllocationSchema(many=True).dump(allocations))
     return str(allocation_id)
 
 
