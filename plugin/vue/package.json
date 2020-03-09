@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales 'src/default/locales/**/*.json'"
   },
   "dependencies": {
     "@ctrl/tinycolor": "^2.5.3",
@@ -13,16 +14,19 @@
     "core-js": "^2.6.5",
     "moment": "^2.24.0",
     "vue": "^2.6.10",
+    "vue-i18n": "^8.0.0",
     "vuedraggable": "^2.23.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@kazupon/vue-i18n-loader": "^0.3.0",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "vue-cli-plugin-i18n": "^0.6.1",
     "vue-template-compiler": "^2.6.10"
   }
 }

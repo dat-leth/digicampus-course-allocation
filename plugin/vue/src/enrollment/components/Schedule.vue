@@ -1,18 +1,39 @@
+<i18n>
+{
+	"de_DE": {
+		"timetable": "Stundenplan",
+		"mon": "Montag",
+		"tue": "Dienstag",
+		"wed": "Mittwoch",
+		"thu": "Donnerstag",
+		"fri": "Freitag"
+	},
+	"en_GB": {
+		"timetable": "Timetable",
+		"mon": "Monday",
+		"tue": "Tuesday",
+		"wed": "Wednesday",
+		"thu": "Thursday",
+		"fri": "Friday"
+	}
+}
+</i18n>
+
 <template>
     <div id="schedule">
         <section class="contentbox">
             <article class="">
-                <header><h1><a href="#">Stundenplan</a></h1></header>
+                <header><h1><a href="#">{{ $t('timetable') }}</a></h1></header>
                 <section>
                     <table id="schedule_data" cellspacing="0" cellpadding="0">
                         <thead>
                         <tr>
                             <td></td>
-                            <td>Montag</td>
-                            <td>Dienstag</td>
-                            <td>Mittwoch</td>
-                            <td>Donnerstag</td>
-                            <td>Freitag</td>
+                            <td>{{ $t('mon') }}</td>
+                            <td>{{ $t('tue') }}</td>
+                            <td>{{ $t('wed') }}</td>
+                            <td>{{ $t('thu') }}</td>
+                            <td>{{ $t('fri') }}</td>
                         </tr>
                         </thead>
                         <tbody>

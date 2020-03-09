@@ -1,5 +1,7 @@
 <script>
     var BUNDLEALLOCATION = {
+        lang: <?= json_encode(getUserLanguage($GLOBALS['user']->id)) ?>,
+        application_time: <?= $application_time ?>,
         distribution_time: <?= $distribution_time ?>,
         ranking_group: <?= json_encode($ranking_group) ?>,
         courses: <?= json_encode($courses) ?>,
@@ -12,8 +14,8 @@
 
 <div id="app"></div>
 <div data-dialog-button>
-    <? if (time() < $distribution_time): ?>
-    <button type="submit" class="accept button bps-button" data-dialog="size=big" name="Speichern">Speichern</button>
+    <? if ($application_time < time() && time() < $distribution_time): ?>
+    <button type="submit" class="accept button bps-button" data-dialog="size=big" name="Speichern"><?= _('Speichern') ?></button>
     <? endif; ?>
-    <button type="submit" class="cancel button bps-button" name="cancel">Schließen</button>
+    <button type="submit" class="cancel button bps-button" name="cancel"><?= _('Schließen') ?></button>
 </div>

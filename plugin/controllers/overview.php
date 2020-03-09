@@ -4,7 +4,7 @@
 class OverviewController extends PluginController
 {
     public function index_action() {
-        PageLayout::setTitle('Laufende präferenzbasierte überschneidungsfreie Anmeldungen');
+        PageLayout::setTitle(_('Laufende präferenzbasierte überschneidungsfreie Anmeldungen'));
         PageLayout::setTabNavigation('/browse');
         Navigation::activateItem('/browse/my_courses/bps_overview');
 
@@ -18,7 +18,7 @@ class OverviewController extends PluginController
             JOIN courseset_rule cr on b.rule_id = cr.rule_id
             JOIN coursesets c on cr.set_id = c.set_id
             WHERE bbr.user_id = ? AND b.distribution_done = 0
-            ORDER BY br.group_id, bbr.priority;");
+            ORDER BY br.group_id, bbr.priority, c.name;");
         $stmt->execute([array($GLOBALS['user']->id)]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -36,7 +36,7 @@ class OverviewController extends PluginController
         }
 
         if (empty($this->waiting)) {
-            PageLayout::postInfo('Im Moment haben Sie keine laufenden Anmeldungen.');
+            PageLayout::postInfo(_('Im Moment haben Sie keine laufenden Anmeldungen im präferenzbasierten überschneidungsfreien Verteilverfahren.'));
         }
     }
 }

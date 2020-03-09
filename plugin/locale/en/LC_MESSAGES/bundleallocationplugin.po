@@ -1,0 +1,281 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-09 18:40+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: views/admission/applications.php:5 vue/public/admission/applications.php:11
+msgid "Anmeldeliste herunterladen (CSV)"
+msgstr "Download applications list (CSV)"
+
+#: views/admission/applications.php:5 vue/public/admission/applications.php:12
+msgid "Anmeldeliste herunterladen (JSON)"
+msgstr "Download applications list (JSON)"
+
+#: views/overview/index.php:15 vue/public/overview/index.php:15
+msgid "Name"
+msgstr "Name"
+
+#: views/overview/index.php:16 vue/public/overview/index.php:16
+msgid "Inhalt"
+msgstr "Content"
+
+#: views/overview/index.php:17 vue/public/overview/index.php:17
+msgid "Priorität"
+msgstr "Priority"
+
+#: views/overview/index.php:47 vue/public/overview/index.php:47
+msgid "Veranstaltungsdetails"
+msgstr "Course details"
+
+#: views/overview/index.php:60 vue/public/overview/index.php:60
+msgid "Prioritäten anpassen"
+msgstr "Modify priorities"
+
+#: views/enrollment/apply.php:11 vue/public/enrollment/apply.php:18
+msgid "Speichern"
+msgstr "Save"
+
+#: views/enrollment/apply.php:11 vue/public/enrollment/apply.php:20
+msgid "Schließen"
+msgstr "Close"
+
+#: controllers/admission.php:24
+#, php-format
+msgid "Anmeldungen zu %s verwalten"
+msgstr "Manage applications of admission set %s"
+
+#: controllers/admission.php:299 controllers/admission.php:349
+#, php-format
+msgid "Teilnahme an der Veranstaltung %s"
+msgstr "Participation in course %s"
+
+#: controllers/admission.php:302
+#, php-format
+msgid ""
+"Sie haben bei der Platzvergabe der Veranstaltung **%s** einen vorläufigen "
+"Platz erhalten. Die endgültige Zulassung zu der Veranstaltung ist noch von "
+"weiteren Bedingungen abhängig, die Sie bitte der Veranstaltungsbeschreibung "
+"entnehmen."
+msgstr ""
+"You have been accepted as participant of the course **%s**. This is "
+"preliminary. Final admittance to the course depends on further pre-"
+"requisites specified in the course description."
+
+#: controllers/admission.php:307
+#, php-format
+msgid ""
+"Sie haben bei der Platzvergabe der Veranstaltung **%s** einen Platz "
+"erhalten. Ab sofort finden Sie die Veranstaltung in der Übersicht Ihrer "
+"Veranstaltungen. Damit sind Sie auch für die Präsenzveranstaltung zugelassen."
+msgstr ""
+"You have been accepted for course **%s**. It has been added to \"My Courses"
+"\" on your start page."
+
+#: controllers/admission.php:312 controllers/admission.php:354
+#, php-format
+msgid "Sie hatten für diese Veranstaltung die Priorität %s gewählt."
+msgstr "Priority %s set for this course."
+
+#: controllers/admission.php:350
+#, php-format
+msgid ""
+"Sie haben leider bei der Platzverteilung der Veranstaltung **%s** __keinen__ "
+"Platz erhalten. Sie wurden jedoch auf Position %s auf die Warteliste "
+"gesetzt. Das System wird Sie automatisch eintragen und benachrichtigen, "
+"sobald ein Platz für Sie frei wird."
+msgstr ""
+"Unfortunately, you were _not_ accepted for the course **%s** . You have been "
+"added to the waiting list. The current position is %s. You will be noticed "
+"if you are accepted to the course."
+
+#: controllers/overview.php:7
+msgid "Laufende präferenzbasierte überschneidungsfreie Anmeldungen"
+msgstr "Current registration entries in non-overlapping admissions"
+
+#: controllers/overview.php:39
+msgid ""
+"Im Moment haben Sie keine laufenden Anmeldungen im präferenzbasierten "
+"überschneidungsfreien Verteilverfahren."
+msgstr ""
+"You have no registration entries in any preference-based and non-overlapping "
+"admissions at this time."
+
+#: BundleAllocationPlugin.class.php:29
+msgid "Laufende Anmeldungen"
+msgstr "Current registration entries"
+
+#: routes/BundleAllocationRoutes.class.php:136
+#: cronjobs/BundleAllocationAdmissionJob.class.php:133
+#, php-format
+msgid "Anmeldeset %s: Verteilergebnisse stehen zur Verfügung"
+msgstr "Admission set %s: Allocation has been calculated"
+
+#: routes/BundleAllocationRoutes.class.php:137
+#: cronjobs/BundleAllocationAdmissionJob.class.php:134
+#, php-format
+msgid ""
+"Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier "
+"Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s "
+"eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch "
+"nicht** in den Veranstaltungen eingetragen. Die Zuteilungen müssen vorher "
+"bestätigt werden."
+msgstr ""
+"A allocation has been calculated for admission set %s (%s) with preference-"
+"based registration and non-overlapping assignment. Please review the "
+"preliminary results and modify them if necessary. In order to finalize "
+"enrollment of participants, confirm preliminary results."
+
+#: cronjobs/BundleAllocationAdmissionJob.class.php:18
+msgid "Bundle Allocation Zuteilung ausführen und überprüfen"
+msgstr "Bundle Allocation - Perform and check allocation calculations"
+
+#: cronjobs/BundleAllocationAdmissionJob.class.php:26
+msgid ""
+"Überprüft, ob Zuteilung durch Bundle Allocation erfolgreich. Triggert "
+"Zuteilung für Anmeldeset beim Microservice, falls noch kein Zuteilungsjob. "
+"Ansonsten abfragen des Status bzw. Zuteilungsergebnisses"
+msgstr ""
+"Checks for scheduled and non-completed admission sets with Bundle "
+"Allocation. Submits an allocation request to microservice if no job was "
+"started. Queries for status or results if job already exists."
+
+#: cronjobs/BundleAllocationAdmissionJob.class.php:105
+#, php-format
+msgid "Anmeldeset %s: Verteilung möglicherweise fehlgeschlagen"
+msgstr "Admisssion set %s: Calculation of allocation failed"
+
+#: cronjobs/BundleAllocationAdmissionJob.class.php:106
+#, php-format
+msgid ""
+"Das Anmeldeset %s mit Verteilzeitpunkt %s hat bisher noch keine Ergebnisse "
+"erhalten. Möglicherweise ist die Verteilung fehlgeschlagen. Überprüfen Sie, "
+"ob der Cronjob bzw. der externe Service ausgeführt wird, Netzwerkfehler "
+"vorliegen oder fehlerhafte Daten übermittelt werden. Fordern Sie "
+"anschließend eine neue Verteilung unter \"Anmeldungen verwalten\" %s an."
+msgstr ""
+"Seat distribution of admission set %s was scheduled for %s, but no "
+"allocation results were received. The calculation of an allocation may have "
+"failed due to network errors or corrupted data. Please contact an "
+"administrator and check the exported list of applications and the external "
+"microservice. Request a new calculation in \"Manage applications\" %s "
+"afterwards."
+
+#: admissionrule/templates/info.php:1
+#: admissionrule/BundleAllocationAdmission.class.php:70
+msgid "Präferenzbasierte überschneidungsfreie Anmeldung"
+msgstr "Preference-based non-overlapping admission"
+
+#: admissionrule/templates/info.php:4
+#, php-format
+msgid "Die Anmeldung ist ab dem %s um %s möglich."
+msgstr "Registration is open on the %s."
+
+#: admissionrule/templates/info.php:11
+#, php-format
+msgid ""
+"Die Plätze in den betreffenden Veranstaltungen werden am %s um %s verteilt."
+msgstr "The seats in these courses will be assigned at %s, %s."
+
+#: admissionrule/templates/info.php:15
+#, php-format
+msgid ""
+"Die Plätze in den betreffenden Veranstaltungen wurden am %s um %s verteilt. "
+"Weitere Plätze werden evtl. über Wartelisten zur Verfügung gestellt."
+msgstr ""
+"The seats in these courses will be assigned at %s, %s. Additional seats may "
+"be added to a  wait list."
+
+#: admissionrule/templates/info.php:21
+msgid ""
+"Es wird überschneidungsfrei jeweils eine (1) Veranstaltung pro "
+"Zuteilungsgruppe zugeteilt, wenn\n"
+"Prioritäten dafür abgegeben wurden. Überschneidungen zu Veranstaltungen "
+"außerhalb dieses Anmeldesets werden\n"
+"<strong>NICHT</strong> berücksichtigt!"
+msgstr ""
+"You can rank courses of each of the following groups according to your "
+"preference. An automatic assignment of applicants to courses will be "
+"conducted in a non-overlapping way. Overlaps between courses of this and "
+"only this registration procedure (admission set) are taken into "
+"consideration."
+
+#: admissionrule/templates/info.php:27
+#, php-format
+msgid "(Mindestanzahl abzugebener Prioritäten: %d)"
+msgstr "(Minimum number of priorities to be submitted: %d)"
+
+#: admissionrule/templates/info.php:35
+msgid "Anmeldungen verwalten"
+msgstr "Manage applications"
+
+#: admissionrule/BundleAllocationAdmission.class.php:31
+msgid ""
+"Unter Berücksichtigung der abgegebenen Prioritäten werden ein oder mehrere "
+"Veranstaltungen überschneidungsfrei zugeteilt.Falls innerhalb des "
+"Anmeldezeitraums wiederholt die Eingabemaske zur Prioritätenerhebung nicht "
+"angezeigt wird, kontaktieren Sie die Lehrperson oder den Support."
+msgstr ""
+"One or more courses will be assigned to applicants according to their "
+"priorities in a non-overlapping way. Students can submit their priorities "
+"during the registration period. Contact the teachers or the support if you "
+"cannot submit your preferences repeatedly."
+
+#: admissionrule/BundleAllocationAdmission.class.php:61
+msgid ""
+"Unter Berücksichtigung der abgegebenen Prioritäten werden dem Nutzer ein "
+"oder mehrere Veranstaltungen überschneidungsfrei zugeteilt. Veranstaltungen "
+"haben eine maximale Teilnehmeranzahl."
+msgstr ""
+"One or more courses will be assigned to applicants according to their "
+"priorities in a non-overlapping way automatically. All courses have a "
+"maximum number of participants. "
+
+#: admissionrule/BundleAllocationAdmission.class.php:308
+msgid "Dieses Anmeldeset enthält keine Veranstaltungen."
+msgstr "This admission set has no courses assigned."
+
+#: admissionrule/BundleAllocationAdmission.class.php:312
+msgid "Bitte geben Sie ein Datum an, ab dem die Anmeldung möglich ist."
+msgstr "Please enter a date for the start of the registration period."
+
+#: admissionrule/BundleAllocationAdmission.class.php:326
+#, php-format
+msgid "Der Start der Anmeldephase kann nicht später als das Ende sein."
+msgstr "Start of registration period cannot be later than the end."
+
+#: admissionrule/BundleAllocationAdmission.class.php:330
+#, php-format
+msgid ""
+"Bitte geben Sie für die Platzverteilung ein Datum an, das weiter in der "
+"Zukunft liegt. Das frühestmögliche Datum ist %s."
+msgstr ""
+"Please enter a date for the end of the registration period that is further "
+"in the future. The earliest possible date is %s."
+
+#: admissionrule/BundleAllocationAdmission.class.php:335
+msgid "Bitte legen Sie mindestens eine Zuteilungsgruppe an."
+msgstr "Please create atleast one allocation group."
+
+#: admissionrule/BundleAllocationAdmission.class.php:349
+#, php-format
+msgid "\"%s\" wurde noch keine Veranstaltungen zugeordnet."
+msgstr "\"%s\" has no assigned courses."
+
+#: admissionrule/BundleAllocationAdmission.class.php:356
+msgid ""
+"Es gibt noch Veranstaltungen, die keiner Zuteilungsgruppe zugeordnet sind."
+msgstr "There are courses that are not assigned to any allocation groups."

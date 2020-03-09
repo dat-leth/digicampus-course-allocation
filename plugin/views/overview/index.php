@@ -12,9 +12,9 @@
             <thead>
             <tr>
                 <th></th>
-                <th>Name</th>
-                <th>Inhalt</th>
-                <th>Priorität</th>
+                <th><?= _('Name') ?></th>
+                <th><?= _('Inhalt') ?></th>
+                <th><?= _('Priorität') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -27,6 +27,11 @@
                     <th></th>
                 </tr>
                 <? foreach ($group['items'] as $item): ?>
+                    <?
+                    uasort($item['courses'], function ($a, $b) {
+                        return strnatcmp($a['seminar_name'], $b['seminar_name']);
+                    })
+                    ?>
                     <? foreach ($item['courses'] as $course): ?>
                         <tr>
                             <? if (array_search($course['seminar_id'], array_keys($item['courses'])) == 0): ?>
@@ -34,12 +39,12 @@
                                     class="gruppe<?= array_search($group['group_id'], array_keys($set['groups'])) % 9; ?>"></td>
                             <? endif; ?>
                             <td>
-                                <a href="/dispatch.php/course/details/?sem_id=<?= $course['seminar_id'] ?>&send_from_search_page=dispatch.php%2Fmy_courses%2Findex&send_from_search=TRUE"><?= $course['seminar_name'] ?></a>
+                                <a href="/dispatch.php/course/details/?sem_id=<?= $course['seminar_id'] ?>&send_from_search_page=plugins.php%2Fbundleallocationplugin%2Foverview%2Findex&send_from_search=TRUE"><?= $course['seminar_name'] ?></a>
                             </td>
                             <td>
                                 <a data-dialog="size=auto"
                                    href="/dispatch.php/course/details/index/<?= $course['seminar_id'] ?>">
-                                    <img alt="info-circle" title="Veranstaltungsdetails anzeigen"
+                                    <img alt="info-circle" title="<?= _('Veranstaltungsdetails') ?>>"
                                          style="cursor: pointer"
                                          src="/assets/images/icons/grey/info-circle.svg"
                                          class="icon-role-inactive icon-shape-info-circle" width="20" height="20"> </a>
@@ -50,12 +55,11 @@
                                     <?= $item['priority'] + 1 ?>
                                 </td>
                                 <td rowspan="<?= count($item['courses']) ?>" style="text-align: right">
-                                    <a
-                                            href="/plugins.php/bundleallocationplugin/enrollment/apply/<?= $course['seminar_id'] ?>">
-                                        <img title="Prioritäten anpassen"
+                                    <a data-dialog="size=big"
+                                       href="/plugins.php/bundleallocationplugin/enrollment/apply/<?= $course['seminar_id'] ?>">
+                                        <img title="<?= _('Prioritäten anpassen') ?>"
                                              src="/assets/images/icons/grey/admin.svg"
-                                             alt="Prioritäten anpassen"
-                                             class="icon-role-inactive icon-shape-door-leave" width="20" height="20">
+                                             class="icon-role-inactive icon-shape-admin" width="20" height="20">
                                     </a>
                                 </td>
                             <? endif; ?>

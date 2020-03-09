@@ -21,10 +21,11 @@ class AdmissionController extends PluginController
     public function applications_action($coursesetId, $csv = null)
     {
         $courseset = new CourseSet($coursesetId);
-        PageLayout::setTitle(sprintf("Anmeldungen zu %s verwalten", $courseset->getName()));
+        PageLayout::setTitle(sprintf(_("Anmeldungen zu %s verwalten"), $courseset->getName()));
 
         $db = DBManager::get();
 
+        // Export database to CSV
         if ($csv) {
             $stmt = $db->prepare("
                 SELECT a.username,
@@ -245,6 +246,33 @@ class AdmissionController extends PluginController
                             WHERE cr.set_id = ? ", [$coursesetId]);
             }
 
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'success')));
+        } else {
+            $this->set_status(405);
+            $this->set_content_type('application/json');
+            $this->render_text(json_encode(array('status' => 'not allowed')));
+        }
+    }
+
+    public function recalculate_action($coursesetId)
+    {
+        if (Request::isPost()) {
+            $courseset = new CourseSet($coursesetId);
+            $rule = $courseset->getAdmissionRule('BundleAllocationAdmission');
+            if (empty($rule)) {
+                throw new Trails_Exception(500, 'Courseset has no BundleAllocationAdmission rule');
+            }
+            $rule->setJobId('');
+            $rule->setDistributionDone(false);
+            $rule->store();
+
+            $db = DBManager::get();
+            $db->execute("DELETE bpa FROM bps_prelim_alloc bpa
+                                JOIN bps_rankinggroup br on bpa.group_id = br.group_id
+                                JOIN bpsadmissions b on br.rule_id = b.rule_id
+                                JOIN courseset_rule cr on b.rule_id = cr.rule_id
+                            WHERE cr.set_id = ?", [$coursesetId]);
             $this->set_content_type('application/json');
             $this->render_text(json_encode(array('status' => 'success')));
         } else {

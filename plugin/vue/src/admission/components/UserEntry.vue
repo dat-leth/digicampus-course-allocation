@@ -1,3 +1,14 @@
+<i18n>
+{
+	"de_DE": {
+		"noallocation": "Noch keine zugeteilte Veranstaltung"
+	},
+	"en_GB": {
+		"noallocation": "No assigned course"
+	}
+}
+</i18n>
+
 <template>
     <tbody>
     <tr>

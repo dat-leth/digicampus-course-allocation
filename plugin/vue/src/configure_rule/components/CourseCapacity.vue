@@ -1,13 +1,32 @@
+<i18n>
+{
+	"de_DE": {
+		"step2_header": "Schritt 2: Kapazitäten der Veranstaltungen festlegen",
+		"course": "Veranstaltung",
+		"times_rooms": "Zeit/Veranstaltungsort",
+		"capacity": "max. Teilnehmendenanzahl",
+		"course_details": "Veranstaltungsdetails aufrufen"
+	},
+	"en_GB": {
+		"step2_header": "Step 2: Set course capacities",
+		"course": "Course",
+		"times_rooms": "Time/Course location",
+		"capacity": "max. Number of Participants",
+		"course_details": "Display course details"
+	}
+}
+</i18n>
+
 <template>
     <div id="course_capacity">
-        <h3>Schritt 2: Kapazitäten der Veranstaltungen festlegen</h3>
+        <h3>{{ $t('step2_header') }}</h3>
         <table class="default">
             <thead>
             <tr>
                 <th></th>
-                <th>Veranstaltung</th>
-                <th>Zeit/Veranstaltungsort</th>
-                <th><span class="required">max. Teilnehmendenanzahl</span></th>
+                <th>{{ $t('course') }}</th>
+                <th>{{ $t('times_rooms') }}</th>
+                <th><span class="required">{{ $t('capacity') }}</span></th>
             </tr>
             </thead>
             <colgroup>
@@ -21,7 +40,7 @@
                 <td>
                     <a :href="`/dispatch.php/course/details/index/${course.course_id}`"
                        data-dialog="">
-                        <img title="Veranstaltungsdetails aufrufen"
+                        <img :title="$t('course_details')"
                              src="/assets/images/icons/grey/info-circle.svg"
                              alt="Veranstaltungsdetails aufrufen" class="icon-role-inactive icon-shape-info-circle"
                              width="16" height="16">

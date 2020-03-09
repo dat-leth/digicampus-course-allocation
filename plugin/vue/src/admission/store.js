@@ -62,6 +62,9 @@ export default new Vuex.Store({
                     group.waitlist = waitlist;
                 }
             }
+        },
+        resetPrelim: (state) => {
+            state.prelim = [];
         }
     },
     actions: {
@@ -70,6 +73,9 @@ export default new Vuex.Store({
         },
         setPrelimWaitlist({commit}, {groupId, userId, waitlist}) {
             commit('setPrelimWaitlist', {groupId, userId, waitlist})
+        },
+        resetPrelim({commit}) {
+            commit('resetPrelim')
         }
     }
 })

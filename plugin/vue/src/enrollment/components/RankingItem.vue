@@ -1,3 +1,14 @@
+<i18n>
+{
+	"de_DE": {
+		"or": "oder"
+	},
+	"en_GB": {
+		"or": "or"
+	}
+}
+</i18n>
+
 <template>
     <div id="ranking-item">
         <button class="add-button" v-on:click.prevent="removeFromRanking">
@@ -7,8 +18,8 @@
             </svg>
         </button>
         <ul>
-            <li v-for="(course) in courses" :key="course.seminar_id">
-                <strong>{{ course.name }}</strong>
+            <li v-for="(course, i) in courses" :key="course.seminar_id">
+                <span v-if="i > 0">{{ $t('or') }} </span><strong>{{ course.name }}</strong>
                 <p v-html="course.formatted_date"></p>
             </li>
         </ul>
@@ -55,10 +66,6 @@
         display: flex;
         flex-direction: column;
         justify-content: space-around;
-    }
-
-    ul > li:not(:first-child):before {
-        content: 'oder ';
     }
 
     ul > li {

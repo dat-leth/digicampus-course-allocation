@@ -6,6 +6,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        lang: 'de_DE',
         rule: {},
         course_infos: {},
         selected_course_ids: [],
@@ -40,6 +41,9 @@ export default new Vuex.Store({
         }
     },
     mutations: {
+        setLanguage(state, lang) {
+            state.lang = lang;
+        },
         setRule(state, newRule) {
             state.rule = newRule;
         },
@@ -75,6 +79,7 @@ export default new Vuex.Store({
 
             commit('setRule', rule);
             commit('setSelectedCourseIds', course_ids);
+            commit('setLanguage', rule.lang);
 
             axios.post('/plugins.php/bundleallocationplugin/rule/course_infos', {
                 'course_ids': course_ids

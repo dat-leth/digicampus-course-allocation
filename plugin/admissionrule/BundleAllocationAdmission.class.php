@@ -9,6 +9,7 @@ use BundleAllocation\BundleItem;
 class BundleAllocationAdmission extends \AdmissionRule
 {
     // --- ATTRIBUTES ---
+    public $applicationTime = 0;
     public $distributionTime = 0;
     public $jobId = '';
     public $distributionDone = false;
@@ -110,6 +111,28 @@ class BundleAllocationAdmission extends \AdmissionRule
         return $this;
     }
 
+    public function getJobId()
+    {
+        return $this->jobId;
+    }
+
+    public function setJobId($id)
+    {
+        $this->jobId = $id;
+        return $this;
+    }
+
+    public function getApplicationTime()
+    {
+        return $this->applicationTime;
+    }
+
+    public function setApplicationTime($time)
+    {
+        $this->applicationTime = $time;
+        return $this;
+    }
+
 
     /**
      * Gets the template that provides a configuration GUI for this rule.
@@ -124,7 +147,10 @@ class BundleAllocationAdmission extends \AdmissionRule
         $tpl = $factory->open('configure');
 
         $data = [];
+        $data['lang'] = getUserLanguage($GLOBALS['user']->id);
         $data['rule_id'] = $this->getId();
+        $data['appl_date'] = $this->getApplicationTime() ? date('d.m.Y', $this->getApplicationTime()) : '';
+        $data['appl_time'] = $this->getApplicationTime() ? date('H:i', $this->getApplicationTime()) : '';
         $data['dist_date'] = $this->getDistributionTime() ? date('d.m.Y', $this->getDistributionTime()) : '';
         $data['dist_time'] = $this->getDistributionTime() ? date('H:i', $this->getDistributionTime()) : '';
         $data['groups'] = new ArrayObject();
@@ -132,6 +158,15 @@ class BundleAllocationAdmission extends \AdmissionRule
             $data['groups'][$id] = ObjectBuilder::export($group);
         }
         $data['course_capacity'] = $this->courseCapacity;
+
+        $atleast_one_ranking_exists = !empty(DBManager::get()->fetchOne("SELECT bbr.* FROM bps_bundleitem_ranking bbr
+            JOIN bps_bundleitem_course bbc on bbr.item_id = bbc.item_id
+            JOIN bps_rankinggroup br on bbr.group_id = br.group_id
+            JOIN bpsadmissions b on br.rule_id = b.rule_id
+            JOIN courseset_rule cr on b.rule_id = cr.rule_id
+            WHERE cr.set_id = ?", [$this->courseSetId]));
+        $data['locked'] = $atleast_one_ranking_exists;
+
 
         $tpl->set_attribute('data', $data);
         return $tpl->render();
@@ -147,6 +182,7 @@ class BundleAllocationAdmission extends \AdmissionRule
             WHERE `rule_id`=? LIMIT 1");
         $stmt->execute(array($this->id));
         if ($current = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->applicationTime = $current['application_time'];
             $this->distributionTime = $current['distribution_time'];
             $this->jobId = $current['job_id'];
             $this->distributionDone = $current['distribution_done'];
@@ -182,10 +218,13 @@ class BundleAllocationAdmission extends \AdmissionRule
     {
         $db = DBManager::get();
         $stmt = $db->prepare("INSERT INTO `bpsadmissions`
-            (`rule_id`, `distribution_time`, `distribution_done`, `mkdate`, `chdate`)
-            VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
-            `distribution_time`=VALUES(`distribution_time`), `distribution_done`=VALUES(`distribution_done`), `chdate`=VALUES(`chdate`)");
-        $stmt->execute(array($this->id, $this->distributionTime, $this->distributionDone, time(), time()));
+            (`rule_id`, `application_time`, `distribution_time`, `distribution_done`, `mkdate`, `chdate`)
+            VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
+            `application_time`=VALUES(`application_time`),
+            `distribution_time`=VALUES(`distribution_time`), 
+            `distribution_done`=VALUES(`distribution_done`), 
+            `chdate`=VALUES(`chdate`);");
+        $stmt->execute(array($this->id, $this->applicationTime, $this->distributionTime, $this->distributionDone, time(), time()));
 
         $group_ids = implode("', '", array_keys($this->rankingGroups));
         $cleanupStmt = $db->prepare("DELETE FROM `bps_rankinggroup` WHERE `rule_id` = ? AND `group_id` NOT IN ('{$group_ids}');");
@@ -226,13 +265,18 @@ class BundleAllocationAdmission extends \AdmissionRule
     public function setAllData($data)
     {
         parent::setAllData($data);
-        if ($data['distributiondate']) {
-            if (!$data['distributiontime']) {
-                $data['distributiontime'] = '23:59';
-            }
-            $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
-            $this->setDistributionTime($ddate);
+        if (!$data['distributiontime']) {
+            $data['distributiontime'] = '23:59';
         }
+        $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
+        $this->setDistributionTime($ddate);
+
+        if (!$data['applicationtime']) {
+            $data['applicationtime'] = '23:59';
+        }
+        $adate = strtotime($data['applicationdate'] . ' ' . $data['applicationtime']);
+        $this->setApplicationTime($adate);
+
         $this->courseCapacity = $data['course_capacity'];
 
         $this->rankingGroups = [];
@@ -264,11 +308,24 @@ class BundleAllocationAdmission extends \AdmissionRule
             $errors[] = _('Dieses Anmeldeset enthält keine Veranstaltungen.');
         }
 
+        if (!$data['applicationdate']) {
+            $errors[] = _('Bitte geben Sie ein Datum an, ab dem die Anmeldung möglich ist.');
+        }
+        if (!$data['applicationtime']) {
+            $data['applicationtime'] = '23:59';
+        }
+        $adate = strtotime($data['applicationdate'] . ' ' . $data['applicationtime']);
+
         // Validate distribution time, has to be atleast in minTimespan minutes
         if (!$data['distributiontime']) {
             $data['distributiontime'] = '23:59';
         }
         $ddate = strtotime($data['distributiondate'] . ' ' . $data['distributiontime']);
+
+        if ($adate > $ddate) {
+            $errors[] = sprintf(_('Der Start der Anmeldephase kann nicht später als das Ende sein.'));
+        }
+
         if (!$data['distributiondate'] || $ddate < (time() + $this->minTimespanToDistrTime * 60)) {
             $errors[] = sprintf(_('Bitte geben Sie für die Platzverteilung ein Datum an, das weiter in der Zukunft liegt. Das frühestmögliche Datum ist %s.'), strftime('%x %R', time() + $this->minTimespanToDistrTime * 60));
         }
@@ -303,6 +360,5 @@ class BundleAllocationAdmission extends \AdmissionRule
 
         return $errors;
     }
-    // TODO: cloning logic
 } /* end of class BundleAllocationAdmission */
 

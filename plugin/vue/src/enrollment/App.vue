@@ -1,53 +1,87 @@
+<i18n>
+{
+	"de_DE": {
+		"close": "Nachrichtenbox schließen",
+		"not_started": "Die Anmeldung ist erst ab dem {date} möglich.",
+		"over_msg": "Die Abgabe von Prioritäten ist nicht mehr möglich. Die automatische Verteilung der Plätze geschah am {date}. Kontaktieren Sie die verantwortliche Lehrperson.",
+		"box_header": "Die Plätze dieser Veranstaltung werden automatisch verteilt.",
+		"details_1ofX": "Sie können 1 von {max} Veranstaltungen belegen. Bei der Verteilung werden die von Ihnen gewünschten Prioritäten sowie Überschneidungen zwischen Veranstaltungen von {others} berücksichtigt.",
+		"details_overlaps": "Überschneidungen zu Veranstaltungen außerhalb dieses Anmeldeverfahrens werden NICHT berücksichtigt.",
+		"details_min_prios": "Es müssen mindestens {amount} Prioritäten abgegeben werden.",
+		"details_dist_time": "Zeitpunkt der Verteilung: {date}",
+		"saved": "Prioritäten wurden gespeichert.",
+		"error_save": "Prioritäten konnten nicht gespeichert werden.",
+		"error_min_prios": "Es müssen mindestens {amount} Prioritäten abgegeben werden."
+	},
+	"en_GB": {
+		"close": "Dismiss",
+		"not_started": "Registration is open on the {date}. You can only submit your preferences then.",
+		"over_msg": "You can no longer submit your preferences. Seats will be assigned at {date}. Please contact the lecturers of this course.",
+		"box_header": "Seats of this course will be assigned automatically.",
+		"details_1ofX": "You may enroll in 1 of the following {max} courses. Your priorities will be accounted for.",
+		"details_overlaps": "The assignment of applicants to courses of groups {others} is non-overlapping. Overlaps with your current courses or other registration procedures are NOT taken into consideration.",
+		"details_min_prios": "You have to rank atleast {amount} courses.",
+		"details_dist_time": "Date of assignment: {date}",
+		"saved": "Your priorities have been saved.",
+		"error_save": "Your priorities has not been saved.",
+		"error_min_prios": "Please rank atleast {amount} courses."
+	}
+}
+</i18n>
+
 <template>
     <div id="app">
+        <div class="messagebox messagebox_warning" v-if="!applicationPeriodStarted">
+            <div class="messagebox_buttons">
+                <a class="close" href="#" :title="$t('close')">
+                    <span>{{ $t('close') }}</span>
+                </a>
+            </div>
+            {{ $t('not_started', {date: applLocaleDate}) }}
+        </div>
         <div class="messagebox messagebox_warning" v-if="!notOverYet">
             <div class="messagebox_buttons">
-                <a class="close" href="#" title="Nachrichtenbox schliessen">
-                    <span>Nachrichtenbox schliessen</span>
+                <a class="close" href="#" :title="$t('close')">
+                    <span>{{ $t('close') }}</span>
                 </a>
             </div>
-            Die Abgabe von Prioritäten ist nicht mehr möglich. Die automatische Verteilung der Plätze geschah am {{ localeDate }}. Kontaktieren Sie die verantwortliche Lehrperson.
+            {{ $t('over_msg', {date: distLocaleDate}) }}
         </div>
-        <div class="messagebox messagebox_info" v-if="notOverYet">
+        <div class="messagebox messagebox_info" v-if="applicationPeriodStarted && notOverYet">
             <div class="messagebox_buttons">
-                <a class="close" href="#" title="Nachrichtenbox schliessen">
-                    <span>Nachrichtenbox schliessen</span>
+                <a class="close" href="#" :title="$t('close')">
+                    <span>{{ $t('close') }}</span>
                 </a>
             </div>
-            Die Plätze dieser Veranstaltung werden automatisch verteilt.
+            {{ $t('box_header') }}
             <div class="messagebox_details">
                 <ul>
-                    <li>Sie können 1 von {{ courses.length }} Veranstaltungen belegen. Bei der Verteilung werden die von
-                        Ihnen gewünschten Prioritäten sowie Überschneidungen zwischen Veranstaltungen von <em>{{ other_ranking_groups.join(', ') }}</em>
-                        berücksichtigt.
-                    </li>
-                    <li>Überschneidungen zu Veranstaltungen außerhalb dieses Anmeldeverfahrens werden
-                        <strong>nicht</strong> berücksichtigt.
-                    </li>
-                    <li>Es müssen mindestens {{ ranking_group.min_amount_prios }} Prioritäten abgegeben werden.</li>
-                    <li>Zeitpunkt der Verteilung: {{ localeDate }}</li>
+                    <li>{{ $t('details_1ofX', {max: courses.length, others: other_ranking_groups.join(', ')}) }}</li>
+                    <li>{{ $t('details_overlaps', {others: other_ranking_groups.join(', ')}) }}</li>
+                    <li>{{ $t('details_min_prios', {amount: ranking_group.min_amount_prios}) }}</li>
+                    <li>{{ $t('details_dist_time', {date: distLocaleDate}) }}</li>
                 </ul>
             </div>
         </div>
         <div class="messagebox messagebox_error" v-if="error.length !== 0">
             <div class="messagebox_buttons">
-                <a class="close" href="#" title="Nachrichtenbox schliessen"
+                <a class="close" href="#" :title="$t('close')"
                    v-on:click.prevent="error = ''">
-                    <span>Nachrichtenbox schliessen</span>
+                    <span>{{ $t('close') }}</span>
                 </a>
             </div>
             {{ error }}
         </div>
         <div class="messagebox messagebox_success" v-if="success === true">
             <div class="messagebox_buttons">
-                <a class="close" href="#" title="Nachrichtenbox schliessen"
+                <a class="close" href="#" :title="$t('close')"
                    v-on:click.prevent="success = false">
-                    <span>Nachrichtenbox schliessen</span>
+                    <span>{{ $t('close') }}</span>
                 </a>
             </div>
-            Prioritäten wurden gespeichert
+            {{ $t('saved') }}
         </div>
-        <div class="ranking" v-if="notOverYet">
+        <div class="ranking" v-if="applicationPeriodStarted && notOverYet">
             <Schedule></Schedule>
             <AvailableList></AvailableList>
             <RankingList></RankingList>
@@ -77,14 +111,20 @@
             }
         },
         computed: {
-            ...mapState(["courses", "distribution_time", "ranking_group", "ranking", "other_ranking_groups"]),
-            localeDate: function () {
+            ...mapState(["courses", "application_time", "distribution_time", "ranking_group", "ranking", "other_ranking_groups"]),
+            distLocaleDate: function () {
                 let d = new Date(this.distribution_time * 1000);
                 return d.toLocaleString();
             },
             notOverYet: function() {
                 return new Date() < new Date(this.distribution_time * 1000)
             },
+            applLocaleDate: function () {
+              return new Date(this.application_time * 1000).toLocaleString();
+            },
+            applicationPeriodStarted: function () {
+                return new Date() > new Date(this.application_time * 1000)
+            }
         },
         methods: {
             submit() {
@@ -104,7 +144,7 @@
                     })
                     .catch(err => {
                         console.log(err);
-                        this.error = 'Prioritäten konnten nicht gespeichert werden.';
+                        this.error = this.$t('error_saved');
                         this.success = false;
                         // eslint-disable-next-line
                         $('.ui-dialog-content').scrollTo(0);
@@ -120,7 +160,7 @@
                     event.preventDefault();
                     if (this.notOverYet) {
                         if (this.ranking.length < this.ranking_group.min_amount_prios && this.ranking.length > 0) {
-                            this.error = `Es müssen mindestens ${this.ranking_group.min_amount_prios} Prioritäten abgegeben werden.`;
+                            this.error = this.$t('error_min_prios', {amount: this.ranking_group.min_amount_prios});
                             this.success = false;
                             // eslint-disable-next-line
                             $('.ui-dialog-content').scrollTo(0);

@@ -10,6 +10,9 @@ class BundleAllocationPlugin extends StudIPPlugin implements SystemPlugin, RESTA
     public function __construct()
     {
         parent::__construct();
+
+        bindtextdomain('bundleallocationplugin', realpath(__DIR__.'/locale'));
+
         $this->addNavigation();
         $this->overrideApplyLink();
     }
@@ -23,7 +26,7 @@ class BundleAllocationPlugin extends StudIPPlugin implements SystemPlugin, RESTA
     private function addNavigation()
     {
         if (!$GLOBALS['perm']->have_perm('admin')) {
-            $studentPrioNav = new Navigation('Laufende Anmeldungen');
+            $studentPrioNav = new Navigation(_('Laufende Anmeldungen'));
             $studentPrioNav->setURL(PluginEngine::getURL($this, [], 'overview/index'));
             Navigation::addItem('/browse/my_courses/bps_overview', $studentPrioNav);
         }

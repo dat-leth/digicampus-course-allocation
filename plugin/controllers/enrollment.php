@@ -22,6 +22,7 @@ class EnrollmentController extends PluginController
         $courseset = CourseSet::getSetForCourse($this->course_id);
         $rule = $courseset->getAdmissionRule('BundleAllocationAdmission');
         $this->rule_id = $rule->getId();
+        $this->application_time = $rule->getApplicationTime();
         $this->distribution_time = $rule->getDistributionTime();
 
         $db = DBManager::get();
@@ -50,7 +51,6 @@ class EnrollmentController extends PluginController
                 foreach ($sem->getUndecoratedData()['regular']['turnus_data'] as $datum) {
                     $datum['weekday'] = ($datum['weekday'] + 6) % 7;
                     $this->courses[$i]['turnus'][] = array_intersect_key($datum, array_flip($keys));
-//                    $this->courses[$i]['turnus'][] = $datum;
                 }
             }
             $this->courses[$i]['formatted_date'] = $sem->getDatesHTML();

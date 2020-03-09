@@ -46,7 +46,7 @@ class SetupBpsDatabase extends Migration
             seminar_id varchar(32) NOT NULL,
             priority int NOT NULL,
             waitlist bool NOT NULL,
-            PRIMARY KEY (user_id, group_id, item_id, seminar_id),
+            PRIMARY KEY (user_id, group_id),
             FOREIGN KEY (item_id) REFERENCES bps_bundleitem(item_id) ON DELETE CASCADE
         )");
         SimpleORMap::expireTableScheme();

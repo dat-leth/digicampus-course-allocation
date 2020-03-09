@@ -26,7 +26,7 @@ class SetupCronjob extends Migration
                     UNIX_TIMESTAMP(), 
                     'HTTP-Authentifiziering mittels diesem Sicherheitstoken an BundleAllocation-Verteil-Service')"
         );
-        BundleAllocationAdmissionJob::register()->schedulePeriodic(-30)->activate();
+        BundleAllocationAdmissionJob::register()->schedulePeriodic(-15)->activate();
     }
 
     /**

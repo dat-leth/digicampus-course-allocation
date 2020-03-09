@@ -10,6 +10,7 @@ class SetupAdmissionRule extends Migration
         $db = DBManager::get();
         $db->exec("CREATE TABLE IF NOT EXISTS `bpsadmissions` (
           `rule_id` varchar(32) NOT NULL,
+          `application_time` int(11) NOT NULL DEFAULT 0,
           `distribution_time` int(11) NOT NULL DEFAULT 0,
           `job_id` varchar(36),
           `distribution_done` boolean NOT NULL DEFAULT FALSE,

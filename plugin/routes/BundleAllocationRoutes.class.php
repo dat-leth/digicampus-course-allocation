@@ -31,7 +31,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
             $course_json = [];
             $course_json['course_id'] = $courseId;
             $course_json['course_name'] = $course->getFullname('number-name-semester');
-            $course_json['capacity'] = (int)$course->admission_turnout;
+            $course_json['capacity'] = $course->getFreeSeats();
             $json['courses'][] = $course_json;
         }
 
@@ -47,7 +47,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
         foreach ($bundleItemsResult as $item) {
             $bundleItems[$item['item_id']]['bundle_item_id'] = $item['item_id'];
             $bundleItems[$item['item_id']]['ranking_group'] = $item['group_id'];
-            $bundleItems[$item['item_id']]['sum_capacity'] += Course::find($item['seminar_id'])->admission_turnout;
+            $bundleItems[$item['item_id']]['sum_capacity'] += Course::find($item['seminar_id'])->getFreeSeats();
             $bundleItems[$item['item_id']]['courses'][]['course_id'] = $item['seminar_id'];
         }
         $json['bundle_items'] = array_values($bundleItems);
@@ -123,7 +123,7 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
             $db = DBManager::get();
             $stmt = $db->prepare("INSERT INTO `bps_prelim_alloc` (user_id, group_id, item_id, seminar_id, priority, waitlist) 
                 VALUES (?, ?, ?, ?, ?, FALSE) 
-                ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), seminar_id=VALUES(seminar_id), priority=VALUES(priority);");
+                ON DUPLICATE KEY UPDATE item_id=VALUES(item_id), seminar_id=VALUES(seminar_id), priority=VALUES(priority), waitlist=FALSE;");
 
             foreach ($this->data as $alloc) {
                 $stmt->execute(array($alloc['student'], $alloc['ranking_group'], $alloc['bundle_item'], $alloc['course'], $alloc['priority']));
@@ -133,9 +133,9 @@ class BundleAllocationRoutes extends \RESTAPI\RouteMap
             }
             $rule->setDistributionDone(true);
             $rule->store();
-            $msg_title = sprintf('Anmeldeset %s: Verteilergebnisse stehen zur Verfügung', $set->getName());
-            $msg_body = sprintf('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die Zuteilungen müssen vorher bestätigt werden.',
-                $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getURL('BundleAllocationPlugin', [], 'admission/applications/' . $setId));
+            $msg_title = sprintf(_('Anmeldeset %s: Verteilergebnisse stehen zur Verfügung'), $set->getName());
+            $msg_body = sprintf(_('Für das Anmeldeset %s (%s) mit präferenzbasierter überschneidungsfreier Anmeldung wurde eine Verteilung berechnet. Die Ergebnisse können unter %s eingesehen werden und ggf. angepasst werden. Die Teilnehmer sind **noch nicht** in den Veranstaltungen eingetragen. Die Zuteilungen müssen vorher bestätigt werden.'),
+                $set->getName(), date("d.m.Y h:i", $rule->getDistributionTime()), PluginEngine::getLink('BundleAllocationPlugin', [], 'admission/applications/' . $setId));
             messaging::sendSystemMessage($set->getUserId(), $msg_title, $msg_body);
 
             return ['status' => '200', 'message' => 'Successfully saved allocations.', 'done' => $rule->getDistributionDone()];
