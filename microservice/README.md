@@ -18,6 +18,7 @@ These instructions will get you a copy of the project up and running on your loc
 - Linux (untested on other operating systems)
 - Gurobi 8.1 (or higher) including a license
 - Python 3.7 (or higher given compatibility of Gurobi)
+- Redis (Queueing system)
 - Reverse proxy (nginx or Apache)
 - TLS/SSL secured connection (important!)
 - Poetry https://python-poetry.org/ (recommended!)
@@ -44,7 +45,7 @@ These instructions will get you a copy of the project up and running on your loc
     ``` 
     $ flask init-database
     ```
-
+- Configure Redis URL of not using local Redis instance and default database for queuing system in `config.py`
 
 ## Deployment
 
