@@ -6,10 +6,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use function GuzzleHttp\Promise\all;
 
+$config = include(__DIR__ . '/../config.inc.php');
 
 class BundleAllocationAdmissionJob extends CronJob
 {
-
     /**
      * Return the name of the cronjob.
      */
@@ -43,9 +43,8 @@ class BundleAllocationAdmissionJob extends CronJob
         );
         $stmt->execute();
         $sets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $base_endpoint_url = Config::get()->BUNDLEALLOCATION_SERVER_ENDPOINT;
         $client = new GuzzleHttp\Client([
-            'base_uri' => $base_endpoint_url,
+            'base_uri' => $config->microservice_url,
             RequestOptions::ALLOW_REDIRECTS => false
         ]);
 
@@ -56,7 +55,7 @@ class BundleAllocationAdmissionJob extends CronJob
                 $new_alloc_requests[$set['set_id']] = $client->requestAsync('POST', 'allocation', [
                     'headers' => [
                         'Content-Type' => 'application/json',
-                        'Authorization' => 'Bearer ' . Config::get()->BUNDLEALLOCATION_SERVER_BEARER_TOKEN,
+                        'Authorization' => 'Bearer ' . $config->bearer_token,
                     ],
                     'body' => json_encode([
                         'callbackUrl' => URLHelper::getURL('api.php/bundleallocation/courseset/' . $set['set_id'] . '/allocations'),
@@ -65,7 +64,7 @@ class BundleAllocationAdmissionJob extends CronJob
                 ]);
             } else if (!empty($set['job_id'])) {
                 $get_status_requests[$set['set_id']] = $client->requestAsync('GET', 'job/' . $set['job_id'],
-                    ['headers' => ['Authorization' => 'Bearer ' . Config::get()->BUNDLEALLOCATION_SERVER_BEARER_TOKEN]]);
+                    ['headers' => ['Authorization' => 'Bearer ' . $config->bearer_token]]);
             }
         }
         $promises = GuzzleHttp\Promise\settle($new_alloc_requests)->wait();
@@ -96,7 +95,7 @@ class BundleAllocationAdmissionJob extends CronJob
         $stmt->execute();
         $sets = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($sets as $set) {
-            if ($set['distribution_time'] < (time() - 21600) && $set['distribution_done'] == false) {
+            if ($set['chdate'] < (time() - 21600) && $set['distribution_done'] == false) {
                 $courseset = new CourseSet($set['set_id']);
                 $rule = $courseset->getAdmissionRule('BundleAllocationAdmission');
                 $rule->setDistributionDone(true);
