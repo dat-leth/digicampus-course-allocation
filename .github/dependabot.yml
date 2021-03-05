@@ -10,7 +10,7 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 20
-- package-ecosystem: poetry
+- package-ecosystem: pip
   directory: "/microservice"
   schedule:
     interval: daily
