@@ -4,14 +4,14 @@ updates:
   directory: "/plugin"
   schedule:
     interval: daily
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 20
 - package-ecosystem: npm
   directory: "/plugin/vue"
   schedule:
     interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: pip
+  open-pull-requests-limit: 20
+- package-ecosystem: poetry
   directory: "/microservice"
   schedule:
     interval: daily
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 20
