@@ -1,0 +1,17 @@
+version: 2
+updates:
+- package-ecosystem: composer
+  directory: "/plugin"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: npm
+  directory: "/plugin/vue"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: pip
+  directory: "/microservice"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
