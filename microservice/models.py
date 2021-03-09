@@ -24,10 +24,10 @@ class AuthToken(db.Model):
     expiration = db.Column(db.DateTime)
 
 
-class AllocationSchema(ma.ModelSchema):
+class AllocationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Allocation
-        sqla_session = db.session
+        load_instance = True
         fields = ["student", "ranking_group", "bundle_item", "course", "priority"]
 
 

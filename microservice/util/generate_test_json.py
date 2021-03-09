@@ -64,6 +64,6 @@ if __name__ == "__main__":
     }
 
     rs = RootSchema()
-    with open('../marshmallow_vv_ws1920_2-dislo.json', 'w') as f:
+    with open('../marsh.json', 'w') as f:
         f.write(rs.dumps(data))
 

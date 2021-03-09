@@ -36,10 +36,10 @@ class BundleItem:
             self.members.update({student: c for student in c.members})
 
     def __hash__(self) -> int:
-        return hash(self.bundle_item_id)
+        return hash(self.ranking_group + self.bundle_item_id)
 
     def __eq__(self, o: object) -> bool:
-        if isinstance(o, BundleItem) and self.bundle_item_id == o.bundle_item_id:
+        if isinstance(o, BundleItem) and self.bundle_item_id == o.bundle_item_id and self.ranking_group == o.ranking_group:
             return True
         return False
 

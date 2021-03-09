@@ -13,10 +13,7 @@ EPSILON = 0.35
 GAMMA = 10
 
 rs = RootSchema()
-
-r = requests.get('http://localhost:5005/studentPrefs')
-r.raise_for_status()
-courses, bundle_items, students, overlaps = rs.load(r.json())
+courses, bundle_items, students, overlaps = rs.loads(open('../marsh.json', 'r').read())
 
 for s in students:
     s.generate_bundles(overlaps)
