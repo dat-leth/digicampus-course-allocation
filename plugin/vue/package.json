@@ -13,7 +13,7 @@
     "@ctrl/tinycolor": "^2.5.3",
     "axios": "^0.21.1",
     "core-js": "^2.6.5",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "vue": "^2.6.10",
     "vue-i18n": "^8.24.0",
     "vuedraggable": "^2.23.0",
