@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ctrl/tinycolor": "^2.5.3",
-    "axios": "^0.21.1",
+    "axios": "^0.27.1",
     "core-js": "^2.6.5",
     "moment": "^2.24.0",
     "vue": "^2.6.10",
