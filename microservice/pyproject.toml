@@ -15,7 +15,7 @@ flask_marshmallow = "^0.14.0"
 marshmallow-sqlalchemy = "^0.24.0"
 pandas = "^1.2.0"
 gunicorn = "^20.0.4"
-python-dotenv = "^0.15.0"
+python-dotenv = "^0.20.0"
 scipy = "^1.6.1"
 
 [tool.poetry.dev-dependencies]
