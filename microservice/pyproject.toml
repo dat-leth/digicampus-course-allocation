@@ -7,7 +7,7 @@ authors = ["Dat Le Thanh <dat.lethanh@student.uni-augsburg.de>"]
 [tool.poetry.dependencies]
 python = "^3.7.1"
 connexion = {version = "^2.3", extras = ["swagger-ui"]}
-marshmallow = {version = "^3.3"}
+marshmallow = {version = "^3.18"}
 bundle_allocation = {path = "../bundle_allocation/"}
 Flask-RQ2 = "^18.3"
 flask_sqlalchemy = "^2.4"
