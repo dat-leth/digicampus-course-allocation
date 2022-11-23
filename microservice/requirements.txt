@@ -17,9 +17,9 @@ clickclick==1.2.2 \
 connexion==2.5.1 \
     --hash=sha256:3f6c2cb8a3f24af281ff561eebaaa926700b24f4c430f4d945c8ace0384c220c \
     --hash=sha256:56854c65334281b303120a1097df09a79ffa44bdaecfc4400e7194821e17566d
-croniter==0.3.31 \
-    --hash=sha256:cfd0837246845d3f3eb463ae8790bfb7db6ac76743e8f31aacaf37830de7fb52 \
-    --hash=sha256:8984b4b27ddfc4b95b2bcec17ee31f827426cf1d717c2af79eff4b4435e23197
+croniter==1.3.8 \
+    --hash=sha256:32a5ec04e97ec0837bcdf013767abd2e71cceeefd3c2e14c804098ce51ad6cd9 \
+    --hash=sha256:d6ed8386d5f4bbb29419dc1b65c4909c04a2322bd15ec0dc5b2877bfa1b75c7a
 flask==1.1.1 \
     --hash=sha256:45eb5a6fd193d6cf7e0cf5d8a5b31f83d5faae0293695626f539a823e93b13f6 \
     --hash=sha256:13f9f196f330c7c2c5d7a5cf91af894110ca0215ac051b5844701f2bfd934d52
