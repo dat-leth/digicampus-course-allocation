@@ -10,7 +10,7 @@
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales 'src/default/locales/**/*.json'"
   },
   "dependencies": {
-    "@ctrl/tinycolor": "^2.5.3",
+    "@ctrl/tinycolor": "^3.5.0",
     "axios": "^0.21.1",
     "core-js": "^2.6.5",
     "moment": "^2.24.0",
